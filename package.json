@@ -10,6 +10,7 @@
     "postinstall": "nuxt prepare"
   },
   "dependencies": {
+    "@element-plus/nuxt": "^1.1.1",
     "@fast-crud/fast-crud": "1.21.2",
     "@fast-crud/fast-extends": "^1.21.2",
     "@fast-crud/ui-element": "^1.21.2",

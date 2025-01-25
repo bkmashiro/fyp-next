@@ -14,7 +14,7 @@ export default defineNuxtConfig({
     server: {
       proxy: {
         '/api': {
-          target: 'http://localhost:3001', // 你的 API 服务器地址
+          target: 'http://localhost:3001', 
           changeOrigin: true,
           rewrite: (path) => path.replace(/^\/api/, ''),
         },
@@ -28,5 +28,5 @@ export default defineNuxtConfig({
   },
 
   ssr: false,
-  modules: ['@nuxtjs/tailwindcss'],
+  modules: ['@nuxtjs/tailwindcss', '@element-plus/nuxt'],
 })
