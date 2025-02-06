@@ -63,23 +63,12 @@
 </template>
 
 <script setup lang="ts">
-await new Promise((resolve) => setTimeout(resolve, 10));
-
-definePageMeta({
-  pageTransition: {
-    name: 'rotate'
-  },
-  viewTransition: true
-})
-
-
 type Photo = { id: string, url: string, description: string }
 const photos = ref<Photo[]>([])
 
 const isAddModalOpen = ref(false)
 const newPhotoUrl = ref('')
 const newPhotoDesc = ref('')
-const selectedPhoto = ref<Photo | null>(null)
 const active = useState()
 
 // Simulate network request: fetch photos (using placeholder data)
@@ -148,7 +137,6 @@ fetchPhotos()
 
 <style scoped>
 .photo-move,
-/* apply transition to moving elements */
 .photo-enter-active,
 .photo-leave-active {
   transition: all 0.5s ease;

@@ -27,13 +27,6 @@
 </template>
 
 <script setup>
-definePageMeta({
-  pageTransition: {
-    name: 'rotate'
-  },
-  viewTransition: true
-})
-
 const route = useRoute()
 const router = useRouter()
 const photo = ref(null)
@@ -66,9 +59,9 @@ img {
   view-transition-name: selected-photo;
 }
 
-/* h1 {
+h1 {
   view-transition-name: header;
-} */
+}
 </style>
 
 
