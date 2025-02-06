@@ -58,6 +58,32 @@ export const $Role = {
     required: ['id', 'name', 'user']
 } as const;
 
+export const $File = {
+    type: 'object',
+    properties: {
+        key: {
+            type: 'string'
+        },
+        originalName: {
+            type: 'string'
+        },
+        size: {
+            type: 'number'
+        },
+        mimeType: {
+            type: 'string'
+        },
+        user: {
+            '$ref': '#/components/schemas/User'
+        },
+        deletedAt: {
+            format: 'date-time',
+            type: 'string'
+        }
+    },
+    required: ['key', 'originalName', 'size', 'mimeType', 'user', 'deletedAt']
+} as const;
+
 export const $User = {
     type: 'object',
     properties: {
@@ -75,9 +101,15 @@ export const $User = {
             items: {
                 '$ref': '#/components/schemas/Role'
             }
+        },
+        files: {
+            type: 'array',
+            items: {
+                '$ref': '#/components/schemas/File'
+            }
         }
     },
-    required: ['id', 'username', 'password', 'roles']
+    required: ['id', 'username', 'password', 'roles', 'files']
 } as const;
 
 export const $CreateManyUserDto = {
@@ -116,6 +148,56 @@ export const $CreateRoleDto = {
 } as const;
 
 export const $UpdateRoleDto = {
+    type: 'object',
+    properties: {}
+} as const;
+
+export const $CreateGeoObjectDto = {
+    type: 'object',
+    properties: {}
+} as const;
+
+export const $UpdateGeoObjectDto = {
+    type: 'object',
+    properties: {}
+} as const;
+
+export const $CreateGeoImageDto = {
+    type: 'object',
+    properties: {}
+} as const;
+
+export const $UpdateGeoImageDto = {
+    type: 'object',
+    properties: {}
+} as const;
+
+export const $CreateGeoCommentDto = {
+    type: 'object',
+    properties: {}
+} as const;
+
+export const $UpdateGeoCommentDto = {
+    type: 'object',
+    properties: {}
+} as const;
+
+export const $CreateStoryboardDto = {
+    type: 'object',
+    properties: {}
+} as const;
+
+export const $UpdateStoryboardDto = {
+    type: 'object',
+    properties: {}
+} as const;
+
+export const $CreateSceneDto = {
+    type: 'object',
+    properties: {}
+} as const;
+
+export const $UpdateSceneDto = {
     type: 'object',
     properties: {}
 } as const;

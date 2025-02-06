@@ -14,7 +14,7 @@ export default defineNuxtConfig({
     server: {
       proxy: {
         '/api': {
-          target: 'http://localhost:3001', 
+          target: 'http://localhost:3001',
           changeOrigin: true,
           rewrite: (path) => path.replace(/^\/api/, ''),
         },
@@ -24,9 +24,17 @@ export default defineNuxtConfig({
 
   imports: {
     autoImport: true,
-    dirs: ['./composables', './utils', './components', './generated/**/services.gen.ts'],
+    dirs: [
+      './composables',
+      './utils',
+      './components',
+      './generated/**/services.gen.ts',
+    ],
   },
 
   ssr: false,
-  modules: ['@nuxtjs/tailwindcss', '@element-plus/nuxt'],
+  modules: ['@element-plus/nuxt', '@nuxt/ui', '@nuxt/image'],
+  experimental: {
+    viewTransition: true,
+  },
 })
