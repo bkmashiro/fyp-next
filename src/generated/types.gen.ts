@@ -61,12 +61,31 @@ export type UpdateGeoObjectDto = {
     [key: string]: unknown;
 };
 
-export type CreateGeoImageDto = {
-    [key: string]: unknown;
+export type GeoObject = {
+    anchor: {
+        [key: string]: unknown;
+    };
+    anchor_latitude: number;
+    metadata: (string) | null;
+    createdAt: string;
+    updatedAt: string;
+    scene: Scene;
 };
 
-export type UpdateGeoImageDto = {
-    [key: string]: unknown;
+export type Scene = {
+    children: Array<GeoObject>;
+};
+
+export type GeoImage = {
+    ossFile: File;
+    anchor: {
+        [key: string]: unknown;
+    };
+    anchor_latitude: number;
+    metadata: (string) | null;
+    createdAt: string;
+    updatedAt: string;
+    scene: Scene;
 };
 
 export type CreateGeoCommentDto = {
@@ -140,8 +159,12 @@ export type RemoveResponse = (string);
 
 export type RemoveError = unknown;
 
+export type UploadFileResponse = (GeoImage);
+
+export type UploadFileError = unknown;
+
 export type Create1Data = {
-    body: CreateGeoImageDto;
+    body: CreateGeoCommentDto;
 };
 
 export type Create1Response = (string);
@@ -163,7 +186,7 @@ export type FindOne1Response = (string);
 export type FindOne1Error = unknown;
 
 export type Update1Data = {
-    body: UpdateGeoImageDto;
+    body: UpdateGeoCommentDto;
     path: {
         id: string;
     };
@@ -184,7 +207,7 @@ export type Remove1Response = (string);
 export type Remove1Error = unknown;
 
 export type Create2Data = {
-    body: CreateGeoCommentDto;
+    body: CreateStoryboardDto;
 };
 
 export type Create2Response = (string);
@@ -206,7 +229,7 @@ export type FindOne2Response = (string);
 export type FindOne2Error = unknown;
 
 export type Update2Data = {
-    body: UpdateGeoCommentDto;
+    body: UpdateStoryboardDto;
     path: {
         id: string;
     };
@@ -227,7 +250,7 @@ export type Remove2Response = (string);
 export type Remove2Error = unknown;
 
 export type Create3Data = {
-    body: CreateStoryboardDto;
+    body: CreateSceneDto;
 };
 
 export type Create3Response = (string);
@@ -249,7 +272,7 @@ export type FindOne3Response = (string);
 export type FindOne3Error = unknown;
 
 export type Update3Data = {
-    body: UpdateStoryboardDto;
+    body: UpdateSceneDto;
     path: {
         id: string;
     };
@@ -268,49 +291,6 @@ export type Remove3Data = {
 export type Remove3Response = (string);
 
 export type Remove3Error = unknown;
-
-export type Create4Data = {
-    body: CreateSceneDto;
-};
-
-export type Create4Response = (string);
-
-export type Create4Error = unknown;
-
-export type FindAll4Response = (string);
-
-export type FindAll4Error = unknown;
-
-export type FindOne4Data = {
-    path: {
-        id: string;
-    };
-};
-
-export type FindOne4Response = (string);
-
-export type FindOne4Error = unknown;
-
-export type Update4Data = {
-    body: UpdateSceneDto;
-    path: {
-        id: string;
-    };
-};
-
-export type Update4Response = (string);
-
-export type Update4Error = unknown;
-
-export type Remove4Data = {
-    path: {
-        id: string;
-    };
-};
-
-export type Remove4Response = (string);
-
-export type Remove4Error = unknown;
 
 export type RegisterData = {
     body: CreateUserDto;
@@ -476,10 +456,6 @@ export type GetDictError = unknown;
 export type GetAllResponse = (Array<(string)>);
 
 export type GetAllError = unknown;
-
-export type UploadFileResponse = (unknown);
-
-export type UploadFileError = unknown;
 
 export type GetFileData = {
     path: {

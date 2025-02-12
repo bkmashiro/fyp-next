@@ -162,14 +162,76 @@ export const $UpdateGeoObjectDto = {
     properties: {}
 } as const;
 
-export const $CreateGeoImageDto = {
+export const $GeoObject = {
     type: 'object',
-    properties: {}
+    properties: {
+        anchor: {
+            type: 'object'
+        },
+        anchor_latitude: {
+            type: 'number'
+        },
+        metadata: {
+            type: 'string',
+            nullable: true
+        },
+        createdAt: {
+            format: 'date-time',
+            type: 'string'
+        },
+        updatedAt: {
+            format: 'date-time',
+            type: 'string'
+        },
+        scene: {
+            '$ref': '#/components/schemas/Scene'
+        }
+    },
+    required: ['anchor', 'anchor_latitude', 'metadata', 'createdAt', 'updatedAt', 'scene']
 } as const;
 
-export const $UpdateGeoImageDto = {
+export const $Scene = {
     type: 'object',
-    properties: {}
+    properties: {
+        children: {
+            type: 'array',
+            items: {
+                '$ref': '#/components/schemas/GeoObject'
+            }
+        }
+    },
+    required: ['children']
+} as const;
+
+export const $GeoImage = {
+    type: 'object',
+    properties: {
+        ossFile: {
+            '$ref': '#/components/schemas/File'
+        },
+        anchor: {
+            type: 'object'
+        },
+        anchor_latitude: {
+            type: 'number'
+        },
+        metadata: {
+            type: 'string',
+            nullable: true
+        },
+        createdAt: {
+            format: 'date-time',
+            type: 'string'
+        },
+        updatedAt: {
+            format: 'date-time',
+            type: 'string'
+        },
+        scene: {
+            '$ref': '#/components/schemas/Scene'
+        }
+    },
+    required: ['ossFile', 'anchor', 'anchor_latitude', 'metadata', 'createdAt', 'updatedAt', 'scene']
 } as const;
 
 export const $CreateGeoCommentDto = {
