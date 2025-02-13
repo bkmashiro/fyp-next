@@ -1,15 +1,24 @@
 <template>
   <!-- 全屏容器作为 Three.js 的渲染画布 -->
   <canvas ref="canvas"
-          class="ar-container"></canvas>
+          class="ar-container"
+          @click="captureFrame"></canvas>
 
-  <button @click="startAR"
-          class="ar-button text-red-600">Start AR</button>
+  <div ref="uidiv">
+    <button @click="startAR"
+            class="ar-button text-red-600">Start AR</button>
+
+    <button class="text-red-600"
+            @click="captureFrame">captureFrame</button>
+  </div>
+
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted, onBeforeUnmount } from 'vue'
 import * as THREE from 'three'
+// @ts-expect-error
+import * as jsfeat from "jsfeat";
 
 class NotSupportedError extends Error {
   constructor(message: string) {
@@ -19,12 +28,11 @@ class NotSupportedError extends Error {
 }
 
 const canvas = ref<HTMLCanvasElement | null>(null)
+const uidiv = ref<HTMLCanvasElement | null>(null)
 let gl: WebGL2RenderingContext | null
 let renderer: THREE.WebGLRenderer | null
 let scene: THREE.Scene | null
 let camera: THREE.PerspectiveCamera | null
-
-
 
 async function init() {
   gl = canvas.value!.getContext("webgl2", { xrCompatible: true });
@@ -62,7 +70,10 @@ async function init() {
   camera.matrixAutoUpdate = false;
 
   // Initialize a WebXR session using "immersive-ar".
-  const session = await navigator.xr!.requestSession("immersive-ar");
+  const session = await navigator.xr!.requestSession("immersive-ar", {
+    domOverlay: { root: uidiv.value! },
+    optionalFeatures: ["dom-overlay"],
+  });
   session.updateRenderState({
     baseLayer: new XRWebGLLayer(session, gl!)
   });
@@ -72,7 +83,7 @@ async function init() {
   const referenceSpace = await session.requestReferenceSpace('local');
 
   // Create a render loop that allows us to draw on the AR view.
-  const onXRFrame = (time:DOMHighResTimeStamp, frame: XRFrame) => {
+  const onXRFrame = (time: DOMHighResTimeStamp, frame: XRFrame) => {
     // Queue up the next draw request.
     session.requestAnimationFrame(onXRFrame);
 
@@ -101,10 +112,10 @@ async function init() {
   session.requestAnimationFrame(onXRFrame);
 }
 
-
 async function startAR() {
   try {
     await init()
+    initJsFeat()
   } catch (error) {
     if (error instanceof NotSupportedError) {
       console.error(error.message)
@@ -112,6 +123,44 @@ async function startAR() {
       console.error(error)
     }
   }
+}
+
+let img_u8: any;
+const corners: jsfeat.keypoint_t[] = [];
+const descriptors = new jsfeat.matrix_t(32, 500, jsfeat.U8_t | jsfeat.C1_t); // ORB 描述符 (最多 500 个关键点)
+
+function initJsFeat() {
+  img_u8 = new jsfeat.matrix_t(canvas.value!.width, canvas.value!.height, jsfeat.U8C1_t);
+}
+
+function captureFrame() {
+  console.log("captureFrame");
+  const ctx = canvas.value!.getContext("2d")!;
+  ctx.drawImage(renderer!.domElement, 0, 0, canvas.value!.width, canvas.value!.height);
+
+  const imageData = ctx.getImageData(0, 0, canvas.value!.width, canvas.value!.height);
+  convertToGray(imageData);
+}
+
+function convertToGray(imageData: ImageData) {
+  const data = imageData.data;
+  const w = imageData.width, h = imageData.height;
+
+  for (let i = 0; i < w * h; i++) {
+    const r = data[i * 4];      // R
+    const g = data[i * 4 + 1];  // G
+    const b = data[i * 4 + 2];  // B
+    img_u8.data[i] = (r * 0.3 + g * 0.59 + b * 0.11); // 灰度化
+  }
+
+  detectORB();
+}
+
+function detectORB() {
+  const num_corners = jsfeat.orb.detect(img_u8, corners, 500); // 最多 500 个特征点
+  jsfeat.orb.describe(img_u8, corners, num_corners, descriptors);
+
+  console.log("Detected ORB features:", num_corners);
 }
 
 </script>
