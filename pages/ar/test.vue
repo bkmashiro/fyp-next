@@ -4,11 +4,14 @@
           class="ar-container"></canvas>
 
   <div ref="uidiv">
+    <p>
+      Overlay
+    </p>
     <button @click="startAR"
             class="ar-button text-red-600">Start AR</button>
 
     <button class="text-red-600"
-            @click="analyseFrameORB">captureFrame</button>
+            @click="extractORBFromCamera">captureFrame</button>
   </div>
 
   <canvas ref="tempcanvas"></canvas>
@@ -16,7 +19,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onBeforeUnmount } from 'vue'
+import { ref } from 'vue'
 import * as THREE from 'three'
 // @ts-expect-error
 import * as jsfeat from "jsfeat";
@@ -31,14 +34,14 @@ class NotSupportedError extends Error {
 const canvas = ref<HTMLCanvasElement | null>(null)
 const tempcanvas = ref<HTMLCanvasElement | null>(null)
 const uidiv = ref<HTMLCanvasElement | null>(null)
-let gl: WebGL2RenderingContext | null
-let renderer: THREE.WebGLRenderer | null
-let scene: THREE.Scene | null
-let camera: THREE.PerspectiveCamera | null
-let renderTarget: THREE.WebGLRenderTarget | null
-let sessionxr: XRSession | null
-let xrGlBinding: XRWebGLBinding | null
-
+let gl: WebGL2RenderingContext | null = null
+let renderer: THREE.WebGLRenderer | null = null
+let scene: THREE.Scene | null = null
+let camera: THREE.PerspectiveCamera | null = null
+let renderTarget: THREE.WebGLRenderTarget | null = null
+let sessionxr: XRSession | null = null
+let xrGlBinding: XRWebGLBinding | null = null
+let _last_pose: XRViewerPose | null = null
 async function init() {
   gl = canvas.value!.getContext("webgl2", { xrCompatible: true, preserveDrawingBuffer: true });
   scene = new THREE.Scene();
@@ -76,8 +79,7 @@ async function init() {
   // Initialize a WebXR session using "immersive-ar".
   sessionxr = await navigator.xr!.requestSession("immersive-ar", {
     domOverlay: { root: uidiv.value! },
-    optionalFeatures: ["dom-overlay", "camera-access"],
-
+    optionalFeatures: ["camera-access", "dom-overlay"],
   });
   sessionxr.updateRenderState({
     baseLayer: new XRWebGLLayer(sessionxr, gl!)
@@ -100,32 +102,18 @@ async function init() {
     // Retrieve the pose of the device.
     // XRFrame.getViewerPose can return null while the session attempts to establish tracking.
     const pose = frame.getViewerPose(referenceSpace);
+    _last_pose = pose || _last_pose;
     if (pose) {
       // In mobile AR, we only have one view.
       const view = pose.views[0];
       const viewport = sessionxr!.renderState.baseLayer!.getViewport(view);
       renderer!.setSize(viewport!.width, viewport!.height)
 
-      // @ts-expect-error
-      const cameraTexture = xrGlBinding!.getCameraImage(view.camera);
-      // console.log("Camera texture:", cameraTexture);
-      if (!gl) return;
-      // 创建帧缓冲区并绑定摄像头纹理
-      const framebuffer = gl.createFramebuffer();
-      gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
-      gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, cameraTexture, 0);
-
-      // 读取像素数据
-      const width = gl.drawingBufferWidth;
-      const height = gl.drawingBufferHeight;
-      const pixels = new Uint8Array(width * height * 4);
-      gl.readPixels(0, 0, width, height, gl.RGBA, gl.UNSIGNED_BYTE, pixels);
-
-      // 解绑帧缓冲区
-      gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-      console.log("Camera pixels:", pixels); //XXX YEEES!
-      // 处理像素数据，例如进行图像分析或特征提取
-
+      if (onNewFrameCapture) {
+        // @ts-expect-error
+        const frameData = getCameraFrameData(view.camera);
+        onNewFrameCapture(frameData);
+      }
 
       // Use the view's transform matrix and projection matrix to configure the THREE.camera.
       camera!.matrix.fromArray(view.transform.matrix)
@@ -134,7 +122,6 @@ async function init() {
 
       // Render the scene with THREE.WebGLRenderer.
       renderer!.render(scene!, camera!)
-
     }
   }
   sessionxr!.requestAnimationFrame(onXRFrame);
@@ -154,40 +141,57 @@ async function startAR() {
 }
 
 let img_u8_mat_t: any;
-const corners: jsfeat.keypoint_t[] = [];
+let corners: jsfeat.keypoint_t[] = [];
 let descriptors = new jsfeat.matrix_t(32, 500, jsfeat.U8_t | jsfeat.C1_t); // ORB 描述符 (最多 500 个关键点)
 
 function initJsFeat() {
   img_u8_mat_t = new jsfeat.matrix_t(canvas.value!.width, canvas.value!.height, jsfeat.U8C1_t);
 }
 
-// https://github.com/immersive-web/raw-camera-access/blob/main/explainer.md
-function captureFrame(): ImageData {
+function getCameraFrameData(xrCamera: any) {
+  // @ts-expect-error
+  const cameraTexture = xrGlBinding!.getCameraImage(xrCamera);
+  // console.log("Camera texture:", cameraTexture);
+  if (!gl) throw new NotSupportedError("WebGL2 not supported");
+  // 创建帧缓冲区并绑定摄像头纹理
+  const framebuffer = gl.createFramebuffer();
+  gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
+  gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, cameraTexture, 0);
 
-  const gl = canvas.value!.getContext("webgl2", { xrCompatible: true, preserveDrawingBuffer: true });
-  const tempCanvas = tempcanvas.value!;
-  const tempCtx = tempCanvas.getContext("2d")!;
-  const w = canvas.value!.width;
-  const h = canvas.value!.height;
+  // 读取像素数据
+  const width = gl.drawingBufferWidth;
+  const height = gl.drawingBufferHeight;
+  const pixels = new Uint8Array(width * height * 4);
+  gl.readPixels(0, 0, width, height, gl.RGBA, gl.UNSIGNED_BYTE, pixels);
 
-  // Read the pixels from the framebuffer.
-  gl!.readPixels(0, 0, w, h, gl!.RGBA, gl!.UNSIGNED_BYTE, new Uint8Array(w * h * 4));
+  // 解绑帧缓冲区
+  gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+  // 处理像素数据，例如进行图像分析或特征提取
 
-  // Flip the image vertically.
-  const imageData = tempCtx.createImageData(w, h);
-
-
+  const imageData = new ImageData(new Uint8ClampedArray(pixels), width, height);
 
   return imageData;
 }
 
 
-function analyseFrameORB() {
-  const imageData = captureFrame();
-  convertToGray(imageData);
+// https://github.com/immersive-web/raw-camera-access/blob/main/explainer.md
+let onNewFrameCapture: ((frame: ImageData) => void) | null = null;
+function captureFrame(): Promise<ImageData> {
+  return new Promise((resolve, reject) => {
+    const timeout = setTimeout(() => {
+      reject(new Error("Timeout"));
+    }, 100);
+
+    onNewFrameCapture = (frame: ImageData) => {
+      clearTimeout(timeout);
+      resolve(frame);
+      onNewFrameCapture = null;
+    };
+  });
 }
 
-function convertToGray(imageData: ImageData) {
+function convertToGrayV2(imageData: ImageData) {
+  const img_u8_mat_t = new jsfeat.matrix_t(imageData.width, imageData.height, jsfeat.U8C1_t);
   const w = imageData.width, h = imageData.height;
   const data = imageData.data; // RGBA 数据
 
@@ -200,7 +204,7 @@ function convertToGray(imageData: ImageData) {
     img_u8_mat_t.data[i] = (r * 0.3 + g * 0.59 + b * 0.11);
   }
 
-  detectORB(); // 运行 ORB 计算
+  return img_u8_mat_t;
 }
 
 function detect_keypoints(img: jsfeat.matrix_t, corners: any[], max_allowed: number) {
@@ -250,16 +254,42 @@ function ic_angle(img: jsfeat.matrix_t, px: number, py: number) {
   return Math.atan2(m_01, m_10);
 }
 
-function detectORB() {
-  console.log("Detecting ORB features...", img_u8_mat_t);
-  const num_corners = detect_keypoints(img_u8_mat_t, corners, 300);
-  console.log("Detected ORB corners:", num_corners);
+function getPose() {
+  return {
+    position: _last_pose?.transform.position,
+    rotation: _last_pose?.transform.orientation
+  }
+}
+
+function convertOrbToFloat32(matrix: any): number[][] {
+  let descriptors: number[][] = [];
+  for (let i = 0; i < matrix.rows; i++) {
+    let descriptor: number[] = [];
+    for (let j = 0; j < matrix.cols; j++) {
+      descriptor.push(matrix.data[i * matrix.cols + j] / 255.0); // 归一化到 [0,1]
+    }
+    descriptors.push(descriptor);
+  }
+  return descriptors;
+}
+
+async function extractORBFromCamera() {
+  // const img_u8_mat_t = new jsfeat.matrix_t(canvas.value!.width, canvas.value!.height, jsfeat.U8C1_t);
+
+  const imageData = await captureFrame();
+  const img_u8_mat_t = convertToGrayV2(imageData);
+
+  const corners = new Array(
+    img_u8_mat_t.cols * img_u8_mat_t.rows
+  ).fill(0).map(() => new jsfeat.keypoint_t(0, 0, 0, 0));
+
+  const num_corners = detect_keypoints(img_u8_mat_t, corners, 256);
   const cols = 32; // 32 Bytes / 256 BIT descriptor
   const rows = num_corners; // descriptors stored per row
-  descriptors = new jsfeat.matrix_t(cols, rows, jsfeat.U8_t | jsfeat.C1_t);
+  const descriptors = new jsfeat.matrix_t(cols, rows, jsfeat.U8_t | jsfeat.C1_t);
   jsfeat.orb.describe(img_u8_mat_t, corners, num_corners, descriptors);
-
-  console.log("Detected ORB features:", descriptors, corners);
+  console.log("Detected ORB descriptors:", convertOrbToFloat32(descriptors));
+  return descriptors
 }
 
 </script>
