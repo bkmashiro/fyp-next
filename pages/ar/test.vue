@@ -79,7 +79,11 @@ async function init() {
   // Initialize a WebXR session using "immersive-ar".
   sessionxr = await navigator.xr!.requestSession("immersive-ar", {
     domOverlay: { root: uidiv.value! },
-    optionalFeatures: ["camera-access", "dom-overlay"],
+    optionalFeatures: ["camera-access", "depth-sensing", "dom-overlay"],
+    depthSensing: {
+      usagePreference: ["cpu-optimized", "gpu-optimized"],
+      dataFormatPreference: ["luminance-alpha", "float32"]
+    }
   });
   sessionxr.updateRenderState({
     baseLayer: new XRWebGLLayer(sessionxr, gl!)
@@ -141,8 +145,6 @@ async function startAR() {
 }
 
 let img_u8_mat_t: any;
-let corners: jsfeat.keypoint_t[] = [];
-let descriptors = new jsfeat.matrix_t(32, 500, jsfeat.U8_t | jsfeat.C1_t); // ORB 描述符 (最多 500 个关键点)
 
 function initJsFeat() {
   img_u8_mat_t = new jsfeat.matrix_t(canvas.value!.width, canvas.value!.height, jsfeat.U8C1_t);
