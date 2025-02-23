@@ -53,20 +53,18 @@ export type UpdateRoleDto = {
     [key: string]: unknown;
 };
 
-export type CreateGeoObjectDto = {
-    [key: string]: unknown;
-};
-
-export type UpdateGeoObjectDto = {
-    [key: string]: unknown;
-};
-
 export type GeoObject = {
     anchor: {
         [key: string]: unknown;
     };
     anchor_latitude: number;
     metadata: (string) | null;
+    cloudAnchorId: (string) | null;
+    relPosition: {
+        [key: string]: unknown;
+    };
+    relAltitude: number;
+    relOrientation: Array<(number)>;
     createdAt: string;
     updatedAt: string;
     scene: Scene;
@@ -76,221 +74,43 @@ export type Scene = {
     children: Array<GeoObject>;
 };
 
+export type CreateGeoImageDto = {
+    ossFileId: string;
+    position: {
+        [key: string]: unknown;
+    };
+    altitude: number;
+    orientation: Array<(number)>;
+    scale?: Array<(number)>;
+    cloudAnchorId: string;
+    metadata?: string;
+};
+
 export type GeoImage = {
-    ossFile: File;
     anchor: {
         [key: string]: unknown;
     };
     anchor_latitude: number;
     metadata: (string) | null;
+    cloudAnchorId: (string) | null;
+    relPosition: {
+        [key: string]: unknown;
+    };
+    relAltitude: number;
+    relOrientation: Array<(number)>;
     createdAt: string;
     updatedAt: string;
     scene: Scene;
-};
-
-export type CreateGeoCommentDto = {
-    [key: string]: unknown;
-};
-
-export type UpdateGeoCommentDto = {
-    [key: string]: unknown;
-};
-
-export type CreateStoryboardDto = {
-    [key: string]: unknown;
-};
-
-export type UpdateStoryboardDto = {
-    [key: string]: unknown;
-};
-
-export type CreateSceneDto = {
-    [key: string]: unknown;
-};
-
-export type UpdateSceneDto = {
-    [key: string]: unknown;
+    ossFile: File;
 };
 
 export type GetHelloResponse = (string);
 
 export type GetHelloError = unknown;
 
-export type CreateData = {
-    body: CreateGeoObjectDto;
-};
+export type EchoResponse = (string);
 
-export type CreateResponse = (string);
-
-export type CreateError = unknown;
-
-export type FindAllResponse = (string);
-
-export type FindAllError = unknown;
-
-export type FindOneData = {
-    path: {
-        id: string;
-    };
-};
-
-export type FindOneResponse = (string);
-
-export type FindOneError = unknown;
-
-export type UpdateData = {
-    body: UpdateGeoObjectDto;
-    path: {
-        id: string;
-    };
-};
-
-export type UpdateResponse = (string);
-
-export type UpdateError = unknown;
-
-export type RemoveData = {
-    path: {
-        id: string;
-    };
-};
-
-export type RemoveResponse = (string);
-
-export type RemoveError = unknown;
-
-export type UploadFileResponse = (GeoImage);
-
-export type UploadFileError = unknown;
-
-export type Create1Data = {
-    body: CreateGeoCommentDto;
-};
-
-export type Create1Response = (string);
-
-export type Create1Error = unknown;
-
-export type FindAll1Response = (string);
-
-export type FindAll1Error = unknown;
-
-export type FindOne1Data = {
-    path: {
-        id: string;
-    };
-};
-
-export type FindOne1Response = (string);
-
-export type FindOne1Error = unknown;
-
-export type Update1Data = {
-    body: UpdateGeoCommentDto;
-    path: {
-        id: string;
-    };
-};
-
-export type Update1Response = (string);
-
-export type Update1Error = unknown;
-
-export type Remove1Data = {
-    path: {
-        id: string;
-    };
-};
-
-export type Remove1Response = (string);
-
-export type Remove1Error = unknown;
-
-export type Create2Data = {
-    body: CreateStoryboardDto;
-};
-
-export type Create2Response = (string);
-
-export type Create2Error = unknown;
-
-export type FindAll2Response = (string);
-
-export type FindAll2Error = unknown;
-
-export type FindOne2Data = {
-    path: {
-        id: string;
-    };
-};
-
-export type FindOne2Response = (string);
-
-export type FindOne2Error = unknown;
-
-export type Update2Data = {
-    body: UpdateStoryboardDto;
-    path: {
-        id: string;
-    };
-};
-
-export type Update2Response = (string);
-
-export type Update2Error = unknown;
-
-export type Remove2Data = {
-    path: {
-        id: string;
-    };
-};
-
-export type Remove2Response = (string);
-
-export type Remove2Error = unknown;
-
-export type Create3Data = {
-    body: CreateSceneDto;
-};
-
-export type Create3Response = (string);
-
-export type Create3Error = unknown;
-
-export type FindAll3Response = (string);
-
-export type FindAll3Error = unknown;
-
-export type FindOne3Data = {
-    path: {
-        id: string;
-    };
-};
-
-export type FindOne3Response = (string);
-
-export type FindOne3Error = unknown;
-
-export type Update3Data = {
-    body: UpdateSceneDto;
-    path: {
-        id: string;
-    };
-};
-
-export type Update3Response = (string);
-
-export type Update3Error = unknown;
-
-export type Remove3Data = {
-    path: {
-        id: string;
-    };
-};
-
-export type Remove3Response = (string);
-
-export type Remove3Error = unknown;
+export type EchoError = unknown;
 
 export type RegisterData = {
     body: CreateUserDto;
@@ -300,7 +120,7 @@ export type RegisterResponse = (User);
 
 export type RegisterError = unknown;
 
-export type GetOneData = {
+export type GetOneUserData = {
     path: {
         id: number;
     };
@@ -320,43 +140,43 @@ export type GetOneData = {
     };
 };
 
-export type GetOneResponse = (User);
+export type GetOneUserResponse = (User);
 
-export type GetOneError = unknown;
+export type GetOneUserError = unknown;
 
-export type UpdateOneData = {
+export type UpdateOneUserData = {
     body: User;
     path: {
         id: number;
     };
 };
 
-export type UpdateOneResponse = (User);
+export type UpdateOneUserResponse = (User);
 
-export type UpdateOneError = unknown;
+export type UpdateOneUserError = unknown;
 
-export type ReplaceOneData = {
+export type ReplaceOneUserData = {
     body: User;
     path: {
         id: number;
     };
 };
 
-export type ReplaceOneResponse = (User);
+export type ReplaceOneUserResponse = (User);
 
-export type ReplaceOneError = unknown;
+export type ReplaceOneUserError = unknown;
 
-export type DeleteOneData = {
+export type DeleteOneUserData = {
     path: {
         id: number;
     };
 };
 
-export type DeleteOneResponse = (unknown);
+export type DeleteOneUserResponse = (unknown);
 
-export type DeleteOneError = unknown;
+export type DeleteOneUserError = unknown;
 
-export type GetManyData = {
+export type GetManyUserData = {
     query?: {
         /**
          * Reset cache (if was enabled). <a href="https://github.com/nestjsx/crud/wiki/Requests#cache" target="_blank">Docs</a>
@@ -401,25 +221,25 @@ export type GetManyData = {
     };
 };
 
-export type GetManyResponse = ((GetManyUserResponseDto | Array<User>));
+export type GetManyUserResponse = ((GetManyUserResponseDto | Array<User>));
 
-export type GetManyError = unknown;
+export type GetManyUserError = unknown;
 
-export type CreateOneData = {
+export type CreateOneUserData = {
     body: User;
 };
 
-export type CreateOneResponse = (User);
+export type CreateOneUserResponse = (User);
 
-export type CreateOneError = unknown;
+export type CreateOneUserError = unknown;
 
-export type CreateManyData = {
+export type CreateManyUserData = {
     body: CreateManyUserDto;
 };
 
-export type CreateManyResponse = (Array<User>);
+export type CreateManyUserResponse = (Array<User>);
 
-export type CreateManyError = unknown;
+export type CreateManyUserError = unknown;
 
 export type LoginData = {
     body: PasswordLoginDto;
@@ -441,6 +261,49 @@ export type TestResponse = ({
 
 export type TestError = unknown;
 
+export type CreateData = {
+    body: CreateRoleDto;
+};
+
+export type CreateResponse = (string);
+
+export type CreateError = unknown;
+
+export type FindAllResponse = (string);
+
+export type FindAllError = unknown;
+
+export type FindOneData = {
+    path: {
+        id: string;
+    };
+};
+
+export type FindOneResponse = (string);
+
+export type FindOneError = unknown;
+
+export type UpdateData = {
+    body: UpdateRoleDto;
+    path: {
+        id: string;
+    };
+};
+
+export type UpdateResponse = (string);
+
+export type UpdateError = unknown;
+
+export type RemoveData = {
+    path: {
+        id: string;
+    };
+};
+
+export type RemoveResponse = (string);
+
+export type RemoveError = unknown;
+
 export type GetDictData = {
     path: {
         entity: string;
@@ -457,6 +320,10 @@ export type GetAllResponse = (Array<(string)>);
 
 export type GetAllError = unknown;
 
+export type UploadFileResponse = (unknown);
+
+export type UploadFileError = unknown;
+
 export type GetFileData = {
     path: {
         key: string;
@@ -466,3 +333,47 @@ export type GetFileData = {
 export type GetFileResponse = (unknown);
 
 export type GetFileError = unknown;
+
+export type FindOneGeoObjectData = {
+    path: {
+        id: string;
+    };
+};
+
+export type FindOneGeoObjectResponse = (GeoObject);
+
+export type FindOneGeoObjectError = unknown;
+
+export type FindGeoObjectsInAreaData = {
+    path: {
+        lat: string;
+        lon: string;
+        radius: string;
+    };
+};
+
+export type FindGeoObjectsInAreaResponse = (Array<GeoObject>);
+
+export type FindGeoObjectsInAreaError = unknown;
+
+export type CreateGeoImageData = {
+    body: CreateGeoImageDto;
+};
+
+export type CreateGeoImageResponse = (GeoImage);
+
+export type CreateGeoImageError = unknown;
+
+export type FindAllGeoImagesResponse = (unknown);
+
+export type FindAllGeoImagesError = unknown;
+
+export type FindOneGeoImageData = {
+    path: {
+        id: string;
+    };
+};
+
+export type FindOneGeoImageResponse = (string);
+
+export type FindOneGeoImageError = unknown;

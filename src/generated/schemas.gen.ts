@@ -152,16 +152,6 @@ export const $UpdateRoleDto = {
     properties: {}
 } as const;
 
-export const $CreateGeoObjectDto = {
-    type: 'object',
-    properties: {}
-} as const;
-
-export const $UpdateGeoObjectDto = {
-    type: 'object',
-    properties: {}
-} as const;
-
 export const $GeoObject = {
     type: 'object',
     properties: {
@@ -175,6 +165,22 @@ export const $GeoObject = {
             type: 'string',
             nullable: true
         },
+        cloudAnchorId: {
+            type: 'string',
+            nullable: true
+        },
+        relPosition: {
+            type: 'object'
+        },
+        relAltitude: {
+            type: 'number'
+        },
+        relOrientation: {
+            type: 'array',
+            items: {
+                type: 'number'
+            }
+        },
         createdAt: {
             format: 'date-time',
             type: 'string'
@@ -187,7 +193,7 @@ export const $GeoObject = {
             '$ref': '#/components/schemas/Scene'
         }
     },
-    required: ['anchor', 'anchor_latitude', 'metadata', 'createdAt', 'updatedAt', 'scene']
+    required: ['anchor', 'anchor_latitude', 'metadata', 'cloudAnchorId', 'relPosition', 'relAltitude', 'relOrientation', 'createdAt', 'updatedAt', 'scene']
 } as const;
 
 export const $Scene = {
@@ -203,12 +209,43 @@ export const $Scene = {
     required: ['children']
 } as const;
 
+export const $CreateGeoImageDto = {
+    type: 'object',
+    properties: {
+        ossFileId: {
+            type: 'string'
+        },
+        position: {
+            type: 'object'
+        },
+        altitude: {
+            type: 'number'
+        },
+        orientation: {
+            type: 'array',
+            items: {
+                type: 'number'
+            }
+        },
+        scale: {
+            type: 'array',
+            items: {
+                type: 'number'
+            }
+        },
+        cloudAnchorId: {
+            type: 'string'
+        },
+        metadata: {
+            type: 'string'
+        }
+    },
+    required: ['ossFileId', 'position', 'altitude', 'orientation', 'cloudAnchorId']
+} as const;
+
 export const $GeoImage = {
     type: 'object',
     properties: {
-        ossFile: {
-            '$ref': '#/components/schemas/File'
-        },
         anchor: {
             type: 'object'
         },
@@ -218,6 +255,22 @@ export const $GeoImage = {
         metadata: {
             type: 'string',
             nullable: true
+        },
+        cloudAnchorId: {
+            type: 'string',
+            nullable: true
+        },
+        relPosition: {
+            type: 'object'
+        },
+        relAltitude: {
+            type: 'number'
+        },
+        relOrientation: {
+            type: 'array',
+            items: {
+                type: 'number'
+            }
         },
         createdAt: {
             format: 'date-time',
@@ -229,37 +282,10 @@ export const $GeoImage = {
         },
         scene: {
             '$ref': '#/components/schemas/Scene'
+        },
+        ossFile: {
+            '$ref': '#/components/schemas/File'
         }
     },
-    required: ['ossFile', 'anchor', 'anchor_latitude', 'metadata', 'createdAt', 'updatedAt', 'scene']
-} as const;
-
-export const $CreateGeoCommentDto = {
-    type: 'object',
-    properties: {}
-} as const;
-
-export const $UpdateGeoCommentDto = {
-    type: 'object',
-    properties: {}
-} as const;
-
-export const $CreateStoryboardDto = {
-    type: 'object',
-    properties: {}
-} as const;
-
-export const $UpdateStoryboardDto = {
-    type: 'object',
-    properties: {}
-} as const;
-
-export const $CreateSceneDto = {
-    type: 'object',
-    properties: {}
-} as const;
-
-export const $UpdateSceneDto = {
-    type: 'object',
-    properties: {}
+    required: ['anchor', 'anchor_latitude', 'metadata', 'cloudAnchorId', 'relPosition', 'relAltitude', 'relOrientation', 'createdAt', 'updatedAt', 'scene', 'ossFile']
 } as const;

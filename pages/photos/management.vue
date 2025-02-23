@@ -39,30 +39,15 @@
       </div>
     </transition-group>
 
-    <!-- Add Photo Modal -->
-    <UModal v-model:show="isAddModalOpen"
-            title="Add Photo">
-      <div class="space-y-4 py-4">
-        <UInput v-model="newPhotoUrl"
-                placeholder="Photo URL"
-                clearable />
-        <UInput v-model="newPhotoDesc"
-                placeholder="Description"
-                clearable />
-      </div>
-      <template #footer>
-        <div class="flex justify-end space-x-2">
-          <UButton @click="closeAddModal">Cancel</UButton>
-          <UButton type="primary"
-                   @click="addPhoto">Add</UButton>
-        </div>
-      </template>
-    </UModal>
-
+    <UPagination v-model="page"
+                 :page-count="5"
+                 :total="photos.length" />
   </div>
 </template>
 
 <script setup lang="ts">
+import { GeoImageService } from '~/src/generated'
+
 type Photo = { id: string, url: string, description: string }
 const photos = ref<Photo[]>([])
 
@@ -70,37 +55,15 @@ const isAddModalOpen = ref(false)
 const newPhotoUrl = ref('')
 const newPhotoDesc = ref('')
 const active = useState()
+const page = ref(1)
 
 // Simulate network request: fetch photos (using placeholder data)
 const fetchPhotos = async () => {
-  // In a real application, replace this with an API call.
-  photos.value = [
-    {
-      id: '1',
-      url: 'https://placehold.co/300x200?text=Photo+1',
-      description: 'Photo 1 description'
-    },
-    {
-      id: '2',
-      url: 'https://placehold.co/300x400?text=Photo+2',
-      description: 'Photo 2 description'
-    },
-    {
-      id: '3',
-      url: 'https://placehold.co/300x250?text=Photo+3',
-      description: 'Photo 3 description'
-    },
-    {
-      id: '4',
-      url: 'https://placehold.co/300x350?text=Photo+4',
-      description: 'Photo 4 description'
-    },
-    {
-      id: '5',
-      url: 'https://placehold.co/300x300?text=Photo+5',
-      description: 'Photo 5 description'
-    }
-  ]
+  const { data } = await GeoImageService.findAllGeoImages({
+    params: { page: page.value, limit: 10 }
+  })
+
+  console.log(data)
 }
 
 // Open/close modals
