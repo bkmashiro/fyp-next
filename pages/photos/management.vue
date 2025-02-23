@@ -20,10 +20,10 @@
         <UCard>
           <nuxt-link :to="`/photos/detail/${photo.id}`"
                      @click.native="active = photo.id">
-            <NuxtImg :src="photo.url"
-                     :alt="photo.description"
-                     class="w-full cursor-pointer"
-                     :class="{ active: active === photo.id }" />
+            <img :src="photo.url"
+                 :alt="photo.description"
+                 class="w-full cursor-pointer"
+                 :class="{ active: active === photo.id }" />
           </nuxt-link>
           <div class="flex justify-between items-center mt-2">
             <p class="text-gray-600 text-sm truncate">
@@ -39,14 +39,16 @@
       </div>
     </transition-group>
 
-    <UPagination v-model="page"
-                 :page-count="5"
-                 :total="photos.length" />
+    <UPagination v-model="pagination.page"
+                 :page-count="10"
+                 :total="pagination.total"
+                 @update="fetchPhotos" />
+                 />
   </div>
 </template>
 
 <script setup lang="ts">
-import { GeoImageService } from '~/src/generated'
+import { GeoImageService, type GeoImage } from '~/src/generated'
 
 type Photo = { id: string, url: string, description: string }
 const photos = ref<Photo[]>([])
@@ -55,15 +57,31 @@ const isAddModalOpen = ref(false)
 const newPhotoUrl = ref('')
 const newPhotoDesc = ref('')
 const active = useState()
-const page = ref(1)
+const pagination = ref({ limit: 10, page: 1, total: 0, totalPages: 0 })
 
 // Simulate network request: fetch photos (using placeholder data)
 const fetchPhotos = async () => {
-  const { data } = await GeoImageService.findAllGeoImages({
-    params: { page: page.value, limit: 10 }
+  const { data: resp } = await GeoImageService.findAllGeoImages({
+    params: { page: pagination.value.page, limit: 10 }
   })
 
-  console.log(data)
+  const {
+    data, limit, page, total, totalPages
+  } = resp as {
+    data: GeoImage[]
+    limit: number
+    page: number
+    total: number
+    totalPages: number
+  }
+
+  photos.value = data.map((photo: any) => ({
+    id: photo.id,
+    url: `/api/file/${photo.ossFile.key}`,
+    description: photo.cloudAnchorId
+  }))
+
+  pagination.value = { limit, page, total, totalPages }
 }
 
 // Open/close modals
