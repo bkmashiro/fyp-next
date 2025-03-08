@@ -43,7 +43,6 @@
                  :page-count="10"
                  :total="pagination.total"
                  @update="fetchPhotos" />
-                 />
   </div>
 </template>
 
@@ -59,7 +58,6 @@ const newPhotoDesc = ref('')
 const active = useState()
 const pagination = ref({ limit: 10, page: 1, total: 0, totalPages: 0 })
 
-// Simulate network request: fetch photos (using placeholder data)
 const fetchPhotos = async () => {
   const { data: resp } = await GeoImageService.findAllGeoImages({
     params: { page: pagination.value.page, limit: 10 }
@@ -90,26 +88,13 @@ const openAddModal = () => {
   newPhotoDesc.value = ''
   isAddModalOpen.value = true
 }
-const closeAddModal = () => {
-  isAddModalOpen.value = false
-}
 
-// Simulate network request: add photo
-const addPhoto = async () => {
-  // In a real application, perform an API call to add the photo.
-  const newPhoto = {
-    id: Date.now().toString(), // Simple unique id
-    url: newPhotoUrl.value || 'https://placehold.co/300?text=Uew+Photo',
-    description: newPhotoDesc.value || 'Uew photo'
-  }
-  photos.value.unshift(newPhoto) // Add new photo at the beginning
-  isAddModalOpen.value = false
-}
-
-// Simulate network request: delete photo
 const deletePhoto = async (id: string) => {
-  // In a real application, call your API to delete the photo.
   photos.value = photos.value.filter(photo => photo.id !== id)
+
+  await GeoImageService.deleteGeoImage({
+    path: { id }
+  })
 }
 
 // Fetch initial photos when the component mounts.

@@ -467,6 +467,16 @@ export type FindOneGeoImageResponse = (GeoImage);
 
 export type FindOneGeoImageError = unknown;
 
+export type DeleteGeoImageData = {
+    path: {
+        id: string;
+    };
+};
+
+export type DeleteGeoImageResponse = (GeoImage);
+
+export type DeleteGeoImageError = unknown;
+
 export type CreateWatermarkData = {
     body: CreateWatermarkDto;
 };
