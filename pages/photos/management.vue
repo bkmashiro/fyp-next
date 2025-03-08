@@ -48,7 +48,7 @@
 </template>
 
 <script setup lang="ts">
-import { GeoImageService, type GeoImage } from '~/src/generated'
+import { GeoImageService, type GeoImage } from '~/generated'
 
 type Photo = { id: string, url: string, description: string }
 const photos = ref<Photo[]>([])
@@ -77,7 +77,7 @@ const fetchPhotos = async () => {
 
   photos.value = data.map((photo: any) => ({
     id: photo.id,
-    url: `/api/file/${photo.ossFile.key}`,
+    url: `/api/api/file/${photo.ossFile.key}`,
     description: photo.cloudAnchorId
   }))
 

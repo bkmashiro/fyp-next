@@ -113,6 +113,7 @@ export default defineNuxtPlugin((nuxtApp) => {
         formData.append('file', file)
         return await FileService.uploadFile({
           env: { FormData },
+          // @ts-ignore
           body: formData,
         })
       },

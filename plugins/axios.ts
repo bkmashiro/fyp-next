@@ -17,7 +17,7 @@
 
 
 import { client } from '../generated/services.gen'
-
+import axios from 'axios'
 export default defineNuxtPlugin((nuxtApp) => {
   const { getToken, clearToken, hasToken } = useAuth()
 
@@ -51,5 +51,22 @@ export default defineNuxtPlugin((nuxtApp) => {
     },
   )
 
+  const http = axios.create({
+    baseURL: '/api',
+  })
+
+  http.interceptors.request.use(
+    (config: any) => {
+      if (hasToken()) {
+        config.headers.set('Authorization', `Bearer ${getToken()}`)
+      }
+      return config
+    },
+    (error: any) => {
+      return Promise.reject(error)
+    },
+  )
+
   nuxtApp.provide('axios', client)
+  nuxtApp.provide('http', http)
 })
