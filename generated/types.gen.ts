@@ -135,6 +135,52 @@ export type CreateCloudAnchorDto = {
     anchorPosition: Array<(number)>;
 };
 
+export type CreateGeoCommentDto = {
+    position: {
+        [key: string]: unknown;
+    };
+    altitude: number;
+    orientation: Array<(number)>;
+    scale?: Array<(number)>;
+    cloudAnchorId: string;
+    metadata?: string;
+};
+
+export type GeoComment = {
+    type: string;
+    anchor: {
+        [key: string]: unknown;
+    };
+    anchor_latitude: number;
+    metadata: (string) | null;
+    cloudAnchor: CloudAnchor;
+    relPosition: {
+        [key: string]: unknown;
+    };
+    relAltitude: number;
+    relOrientation: Array<(number)>;
+    createdAt: string;
+    updatedAt: string;
+    scene: Scene;
+    text: string;
+};
+
+export type CreateSceneDto = {
+    name: string;
+    position: Array<(string)>;
+    altitude?: number;
+    orientation?: Array<(string)>;
+    scale?: Array<(string)>;
+};
+
+export type UpdateSceneDto = {
+    name?: string;
+    position?: Array<(string)>;
+    altitude?: number;
+    orientation?: Array<(string)>;
+    scale?: Array<(string)>;
+};
+
 export type CreateWatermarkDto = {
     fileKey: string;
     watermark: string;
@@ -182,6 +228,53 @@ export type CreateCloudAnchorData = {
 export type CreateCloudAnchorResponse = (CloudAnchor);
 
 export type CreateCloudAnchorError = unknown;
+
+export type ListAnchorsData = {
+    query: {
+        nextPageToken: string;
+        pageSize: string;
+    };
+};
+
+export type ListAnchorsResponse = ({
+    [key: string]: unknown;
+});
+
+export type ListAnchorsError = unknown;
+
+export type GetAnchorData = {
+    path: {
+        anchorId: string;
+    };
+};
+
+export type GetAnchorResponse = ({
+    [key: string]: unknown;
+});
+
+export type GetAnchorError = unknown;
+
+export type DeleteAnchorData = {
+    path: {
+        anchorId: string;
+    };
+};
+
+export type DeleteAnchorResponse = (unknown);
+
+export type DeleteAnchorError = unknown;
+
+export type UpdateAnchorExpireTimeData = {
+    path: {
+        anchorId: string;
+    };
+};
+
+export type UpdateAnchorExpireTimeResponse = ({
+    [key: string]: unknown;
+});
+
+export type UpdateAnchorExpireTimeError = unknown;
 
 export type RegisterData = {
     body: CreateUserDto;
@@ -476,6 +569,25 @@ export type DeleteGeoImageData = {
 export type DeleteGeoImageResponse = (GeoImage);
 
 export type DeleteGeoImageError = unknown;
+
+export type FindAllData = {
+    query?: {
+        limit?: number;
+        limit?: number;
+        page?: number;
+        page?: number;
+    };
+};
+
+export type DeleteData = {
+    path: {
+        id: string;
+    };
+};
+
+export type DeleteResponse = (GeoComment);
+
+export type DeleteError = unknown;
 
 export type CreateWatermarkData = {
     body: CreateWatermarkDto;

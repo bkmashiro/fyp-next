@@ -368,6 +368,147 @@ export const $CreateCloudAnchorDto = {
     required: ['cloudAnchorId', 'anchorPosition']
 } as const;
 
+export const $CreateGeoCommentDto = {
+    type: 'object',
+    properties: {
+        position: {
+            type: 'object'
+        },
+        altitude: {
+            type: 'number'
+        },
+        orientation: {
+            type: 'array',
+            items: {
+                type: 'number'
+            }
+        },
+        scale: {
+            type: 'array',
+            items: {
+                type: 'number'
+            }
+        },
+        cloudAnchorId: {
+            type: 'string'
+        },
+        metadata: {
+            type: 'string'
+        }
+    },
+    required: ['position', 'altitude', 'orientation', 'cloudAnchorId']
+} as const;
+
+export const $GeoComment = {
+    type: 'object',
+    properties: {
+        type: {
+            type: 'string'
+        },
+        anchor: {
+            type: 'object'
+        },
+        anchor_latitude: {
+            type: 'number'
+        },
+        metadata: {
+            type: 'string',
+            nullable: true
+        },
+        cloudAnchor: {
+            '$ref': '#/components/schemas/CloudAnchor'
+        },
+        relPosition: {
+            type: 'object'
+        },
+        relAltitude: {
+            type: 'number'
+        },
+        relOrientation: {
+            type: 'array',
+            items: {
+                type: 'number'
+            }
+        },
+        createdAt: {
+            format: 'date-time',
+            type: 'string'
+        },
+        updatedAt: {
+            format: 'date-time',
+            type: 'string'
+        },
+        scene: {
+            '$ref': '#/components/schemas/Scene'
+        },
+        text: {
+            type: 'string'
+        }
+    },
+    required: ['type', 'anchor', 'anchor_latitude', 'metadata', 'cloudAnchor', 'relPosition', 'relAltitude', 'relOrientation', 'createdAt', 'updatedAt', 'scene', 'text']
+} as const;
+
+export const $CreateSceneDto = {
+    type: 'object',
+    properties: {
+        name: {
+            type: 'string'
+        },
+        position: {
+            type: 'array',
+            items: {
+                type: 'string'
+            }
+        },
+        altitude: {
+            type: 'number'
+        },
+        orientation: {
+            type: 'array',
+            items: {
+                type: 'string'
+            }
+        },
+        scale: {
+            type: 'array',
+            items: {
+                type: 'string'
+            }
+        }
+    },
+    required: ['name', 'position']
+} as const;
+
+export const $UpdateSceneDto = {
+    type: 'object',
+    properties: {
+        name: {
+            type: 'string'
+        },
+        position: {
+            type: 'array',
+            items: {
+                type: 'string'
+            }
+        },
+        altitude: {
+            type: 'number'
+        },
+        orientation: {
+            type: 'array',
+            items: {
+                type: 'string'
+            }
+        },
+        scale: {
+            type: 'array',
+            items: {
+                type: 'string'
+            }
+        }
+    }
+} as const;
+
 export const $CreateWatermarkDto = {
     type: 'object',
     properties: {
