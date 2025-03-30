@@ -165,6 +165,17 @@ export type GeoComment = {
     text: string;
 };
 
+export type UpdateGeoCommentDto = {
+    position?: {
+        [key: string]: unknown;
+    };
+    altitude?: number;
+    orientation?: Array<(number)>;
+    scale?: Array<(number)>;
+    cloudAnchorId?: string;
+    metadata?: string;
+};
+
 export type CreateSceneDto = {
     name: string;
     position: Array<(string)>;
@@ -208,73 +219,6 @@ export type CreateMessageError = unknown;
 export type ValidateMessageResponse = (boolean);
 
 export type ValidateMessageError = unknown;
-
-export type FindCloudAnchorObjectsInAreaData = {
-    path: {
-        lat: string;
-        lon: string;
-        radius: string;
-    };
-};
-
-export type FindCloudAnchorObjectsInAreaResponse = (Array<CloudAnchor>);
-
-export type FindCloudAnchorObjectsInAreaError = unknown;
-
-export type CreateCloudAnchorData = {
-    body: CreateCloudAnchorDto;
-};
-
-export type CreateCloudAnchorResponse = (CloudAnchor);
-
-export type CreateCloudAnchorError = unknown;
-
-export type ListAnchorsData = {
-    query: {
-        nextPageToken: string;
-        pageSize: string;
-    };
-};
-
-export type ListAnchorsResponse = ({
-    [key: string]: unknown;
-});
-
-export type ListAnchorsError = unknown;
-
-export type GetAnchorData = {
-    path: {
-        anchorId: string;
-    };
-};
-
-export type GetAnchorResponse = ({
-    [key: string]: unknown;
-});
-
-export type GetAnchorError = unknown;
-
-export type DeleteAnchorData = {
-    path: {
-        anchorId: string;
-    };
-};
-
-export type DeleteAnchorResponse = (unknown);
-
-export type DeleteAnchorError = unknown;
-
-export type UpdateAnchorExpireTimeData = {
-    path: {
-        anchorId: string;
-    };
-};
-
-export type UpdateAnchorExpireTimeResponse = ({
-    [key: string]: unknown;
-});
-
-export type UpdateAnchorExpireTimeError = unknown;
 
 export type RegisterData = {
     body: CreateUserDto;
@@ -570,6 +514,84 @@ export type DeleteGeoImageResponse = (GeoImage);
 
 export type DeleteGeoImageError = unknown;
 
+export type FindCloudAnchorObjectsInAreaData = {
+    path: {
+        lat: string;
+        lon: string;
+        radius: string;
+    };
+};
+
+export type FindCloudAnchorObjectsInAreaResponse = (Array<CloudAnchor>);
+
+export type FindCloudAnchorObjectsInAreaError = unknown;
+
+export type CreateCloudAnchorData = {
+    body: CreateCloudAnchorDto;
+};
+
+export type CreateCloudAnchorResponse = (CloudAnchor);
+
+export type CreateCloudAnchorError = unknown;
+
+export type FindAllAnchorsData = {
+    query: {
+        page: string;
+        pageSize: string;
+    };
+};
+
+export type FindAllAnchorsResponse = (unknown);
+
+export type FindAllAnchorsError = unknown;
+
+export type ListAnchorsData = {
+    query: {
+        nextPageToken: string;
+        pageSize: string;
+    };
+};
+
+export type ListAnchorsResponse = ({
+    [key: string]: unknown;
+});
+
+export type ListAnchorsError = unknown;
+
+export type GetAnchorData = {
+    path: {
+        anchorId: string;
+    };
+};
+
+export type GetAnchorResponse = ({
+    [key: string]: unknown;
+});
+
+export type GetAnchorError = unknown;
+
+export type DeleteAnchorData = {
+    path: {
+        anchorId: string;
+    };
+};
+
+export type DeleteAnchorResponse = (unknown);
+
+export type DeleteAnchorError = unknown;
+
+export type UpdateAnchorExpireTimeData = {
+    path: {
+        anchorId: string;
+    };
+};
+
+export type UpdateAnchorExpireTimeResponse = ({
+    [key: string]: unknown;
+});
+
+export type UpdateAnchorExpireTimeError = unknown;
+
 export type FindAllData = {
     query?: {
         limit?: number;
@@ -588,6 +610,30 @@ export type DeleteData = {
 export type DeleteResponse = (GeoComment);
 
 export type DeleteError = unknown;
+
+export type FindByCloudAnchorIdData = {
+    path: {
+        cloudAnchorId: number;
+    };
+    query?: {
+        limit?: number;
+        page?: number;
+    };
+};
+
+export type FindByCloudAnchorIdResponse = (unknown);
+
+export type FindByCloudAnchorIdError = unknown;
+
+export type GetStatisticsData = {
+    path: {
+        cloudAnchorId: number;
+    };
+};
+
+export type GetStatisticsResponse = (unknown);
+
+export type GetStatisticsError = unknown;
 
 export type CreateWatermarkData = {
     body: CreateWatermarkDto;

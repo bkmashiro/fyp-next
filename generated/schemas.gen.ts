@@ -448,6 +448,36 @@ export const $GeoComment = {
     required: ['type', 'anchor', 'anchor_latitude', 'metadata', 'cloudAnchor', 'relPosition', 'relAltitude', 'relOrientation', 'createdAt', 'updatedAt', 'scene', 'text']
 } as const;
 
+export const $UpdateGeoCommentDto = {
+    type: 'object',
+    properties: {
+        position: {
+            type: 'object'
+        },
+        altitude: {
+            type: 'number'
+        },
+        orientation: {
+            type: 'array',
+            items: {
+                type: 'number'
+            }
+        },
+        scale: {
+            type: 'array',
+            items: {
+                type: 'number'
+            }
+        },
+        cloudAnchorId: {
+            type: 'string'
+        },
+        metadata: {
+            type: 'string'
+        }
+    }
+} as const;
+
 export const $CreateSceneDto = {
     type: 'object',
     properties: {
