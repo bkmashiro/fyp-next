@@ -17,10 +17,22 @@ interface GeoObject {
   id?: string
 }
 
+interface Bounds {
+  minLat: number
+  maxLat: number
+  minLon: number
+  maxLon: number
+}
+
 const props = defineProps<{
   objects: GeoObject[]
   center?: [number, number]
   zoom?: number
+  type?: string
+}>()
+
+const emit = defineEmits<{
+  (e: 'bounds-change', bounds: Bounds): void
 }>()
 
 const mapContainer = ref<HTMLElement | null>(null)
@@ -59,6 +71,19 @@ const initMap = () => {
 
   // 添加标记
   addMarkers()
+
+  // 监听地图边界变化
+  map.on('moveend', () => {
+    const bounds = map?.getBounds()
+    if (bounds) {
+      emit('bounds-change', {
+        minLat: bounds.getSouth(),
+        maxLat: bounds.getNorth(),
+        minLon: bounds.getWest(),
+        maxLon: bounds.getEast()
+      })
+    }
+  })
 }
 
 // 添加标记
@@ -68,6 +93,8 @@ const addMarkers = () => {
   // 清除现有标记
   markers.forEach(marker => marker.remove())
   markers = []
+
+  if (props.objects.length === 0) return
 
   props.objects.forEach(obj => {
     const coordinates = obj.anchor.coordinates
