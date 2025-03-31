@@ -7,14 +7,10 @@ import { ref, onMounted, onUnmounted } from 'vue'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 
-interface GeoObject {
-  type: string
-  anchor: {
-    coordinates: number[]
-  }
-  anchor_latitude: number
-  metadata: string | null
-  id?: string
+interface MapMarker {
+  position: [number, number]
+  icon: string
+  content: string
 }
 
 interface Bounds {
@@ -25,10 +21,9 @@ interface Bounds {
 }
 
 const props = defineProps<{
-  objects: GeoObject[]
+  markers: MapMarker[]
   center?: [number, number]
   zoom?: number
-  type?: string
 }>()
 
 const emit = defineEmits<{
@@ -39,27 +34,20 @@ const mapContainer = ref<HTMLElement | null>(null)
 let map: L.Map | null = null
 let markers: L.Marker[] = []
 
-// 自定义图标
-const createIcon = (type: string) => {
-  return L.divIcon({
-    className: 'custom-marker',
-    html: `<div class="w-6 h-6 rounded-full flex items-center justify-center ${
-      type === 'GeoImage' ? 'bg-blue-500' : 'bg-green-500'
-    } text-white text-xs">${type === 'GeoImage' ? '📷' : '💬'}</div>`,
-    iconSize: [24, 24],
-    iconAnchor: [12, 12]
-  })
-}
+// 暴露地图实例
+defineExpose({
+  setView: (latlng: [number, number], zoom: number) => {
+    if (map) {
+      map.setView(latlng, zoom)
+    }
+  }
+})
 
 // 初始化地图
 const initMap = () => {
   if (!mapContainer.value) return
 
-  // 获取第一个对象的坐标作为中心点
-  const firstObject = props.objects[0]
-  const defaultCenter: [number, number] = firstObject 
-    ? [firstObject.anchor.coordinates[1], firstObject.anchor.coordinates[0]]
-    : props.center || [39.9042, 116.4074]
+  const defaultCenter: [number, number] = props.markers[0]?.position || props.center || [39.9042, 116.4074]
   const defaultZoom = props.zoom || 15
 
   map = L.map(mapContainer.value).setView(defaultCenter, defaultZoom)
@@ -77,10 +65,10 @@ const initMap = () => {
     const bounds = map?.getBounds()
     if (bounds) {
       emit('bounds-change', {
-        minLat: bounds.getSouth(),
-        maxLat: bounds.getNorth(),
-        minLon: bounds.getWest(),
-        maxLon: bounds.getEast()
+        minLat: Math.max(-90, bounds.getSouth()),
+        maxLat: Math.min(90, bounds.getNorth()),
+        minLon: Math.max(-180, bounds.getWest()),
+        maxLon: Math.min(180, bounds.getEast())
       })
     }
   })
@@ -93,33 +81,26 @@ const addMarkers = () => {
   // 清除现有标记
   markers.forEach(marker => marker.remove())
   markers = []
-  if (!props.objects) return
-  if (props.objects.length === 0) return
+  if (!props.markers) return
+  if (props.markers.length === 0) return
 
-  props.objects.forEach(obj => {
-    const coordinates = obj.anchor.coordinates
-    if (!coordinates || coordinates.length < 2) return
-
-    const marker = L.marker([coordinates[1], coordinates[0]], {
-      icon: createIcon(obj.type)
+  props.markers.forEach(marker => {
+    const leafletMarker = L.marker(marker.position, {
+      icon: L.divIcon({
+        className: 'custom-marker',
+        html: marker.icon,
+        iconSize: [24, 24],
+        iconAnchor: [12, 12]
+      })
     }).addTo(map)
 
-    // 添加弹出窗口
-    const popupContent = `
-      <div class="p-2">
-        <p class="font-semibold">${obj.type}</p>
-        <p class="text-sm text-gray-600">Altitude: ${obj.anchor_latitude.toFixed(2)}m</p>
-        ${obj.metadata ? `<p class="text-sm mt-2">${obj.metadata}</p>` : ''}
-      </div>
-    `
-    marker.bindPopup(popupContent)
-
-    markers.push(marker)
+    leafletMarker.bindPopup(marker.content)
+    markers.push(leafletMarker)
   })
 }
 
-// 监听对象变化
-watch(() => props.objects, () => {
+// 监听标记变化
+watch(() => props.markers, () => {
   addMarkers()
 }, { deep: true })
 

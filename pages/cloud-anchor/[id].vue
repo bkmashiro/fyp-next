@@ -10,7 +10,8 @@
           <div class="border rounded-lg p-4 mb-4">
             <h3 class="text-lg font-semibold mb-3">Map View</h3>
             <GeoMap 
-              :objects="mapObjects"
+              ref="mapRef"
+              :markers="mapObjects"
               :center="mapCenter"
               :zoom="15"
             />
@@ -68,9 +69,14 @@
                       <div class="grid grid-cols-2 gap-4 text-sm">
                         <div>
                           <p class="text-gray-600">Position</p>
-                          <p>Lat: {{ getCoordinates(obj.anchor)[1].toFixed(6) }}°</p>
-                          <p>Lng: {{ getCoordinates(obj.anchor)[0].toFixed(6) }}°</p>
-                          <p>Alt: {{ obj.anchor_latitude.toFixed(2) }}m</p>
+                          <button 
+                            @click="focusOnObject(obj)"
+                            class="text-blue-600 hover:underline text-left"
+                          >
+                            <p>Lat: {{ getCoordinates((obj as any).position)[1].toFixed(6) }}°</p>
+                            <p>Lng: {{ getCoordinates((obj as any).position)[0].toFixed(6) }}°</p>
+                            <p>Alt: {{ (obj as any).altitude.toFixed(2) }}m</p>
+                          </button>
                         </div>
                         <div>
                           <p class="text-gray-600">Relative Position</p>
@@ -114,9 +120,14 @@ import { CloudAnchorService, type CloudAnchor, type GeoObject } from '~/generate
 import Id from '../comment/[id].vue'
 import GeoMap from '~/components/GeoMap.vue'
 
+interface MapInstance {
+  setView: (latlng: [number, number], zoom: number) => void
+}
+
 const route = useRoute()
 const router = useRouter()
 const cloudAnchor = ref<CloudAnchor | null>(null)
+const mapRef = ref<MapInstance | null>(null)
 
 const formatDate = (dateString: string) => {
   return new Date(dateString).toLocaleString()
@@ -136,15 +147,46 @@ const mapCenter = computed(() => {
 // 转换对象为地图可用的格式
 const mapObjects = computed(() => {
   if (!cloudAnchor.value?.geoObjects) return []
-  return cloudAnchor.value.geoObjects.map(obj => ({
-    type: obj.type,
-    anchor: {
-      coordinates: getCoordinates(obj.anchor)
-    },
-    anchor_latitude: obj.anchor_latitude,
-    metadata: obj.metadata,
-    id: (obj as any).id
-  }))
+  
+  // 首先添加锚点本身
+  const anchorCoords = getCoordinates(cloudAnchor.value.anchor)
+  const markers = [{
+    position: [anchorCoords[1], anchorCoords[0]] as [number, number],
+    icon: `<div class="w-6 h-6 rounded-full flex items-center justify-center bg-purple-500 text-white text-xs">📍</div>`,
+    content: `
+      <div class="p-2">
+        <p class="font-semibold">Cloud Anchor</p>
+        <p class="text-sm text-gray-600">Altitude: ${cloudAnchor.value.altitude.toFixed(2)}m</p>
+        <p class="text-sm text-gray-600">ID: ${cloudAnchor.value.cloudAnchorId}</p>
+      </div>
+    `
+  }]
+
+  // 然后添加关联物体
+  const objectMarkers = cloudAnchor.value.geoObjects.map(obj => {
+    const coords = getCoordinates((obj as any).position)
+    return {
+      position: [coords[1], coords[0]] as [number, number],
+      icon: `<div class="w-6 h-6 rounded-full flex items-center justify-center ${
+        obj.type === 'GeoImage' ? 'bg-blue-500' : 'bg-green-500'
+      } text-white text-xs">${obj.type === 'GeoImage' ? '📷' : '💬'}</div>`,
+      content: `
+        <div class="p-2">
+          <p class="font-semibold">${obj.type}</p>
+          <p class="text-sm text-gray-600">Altitude: ${(obj as any).altitude.toFixed(2)}m</p>
+          ${obj.type === 'GeoComment' ? `<p class="text-sm mt-2">${(obj as any).text}</p>` : ''}
+          <div class="mt-2 text-sm text-gray-600">
+            <p>Position:</p>
+            <p>Lat: ${coords[1].toFixed(6)}°</p>
+            <p>Lng: ${coords[0].toFixed(6)}°</p>
+            <p>Alt: ${(obj as any).altitude.toFixed(2)}m</p>
+          </div>
+        </div>
+      `
+    }
+  })
+
+  return [...markers, ...objectMarkers]
 })
 
 const fetchAnchorDetails = async (id: string) => {
@@ -163,6 +205,13 @@ const viewGeoObject = (obj: GeoObject) => {
 
 const goBack = () => {
   router.push('/cloud-anchor/management')
+}
+
+const focusOnObject = (obj) => {
+  if (mapRef.value) {
+    const coords = getCoordinates((obj as any).position)
+    mapRef.value.setView([coords[1], coords[0]], 15)
+  }
 }
 
 onMounted(async () => {

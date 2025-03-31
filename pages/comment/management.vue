@@ -2,6 +2,18 @@
   <div class="p-6">
     <h1 class="text-3xl font-bold mb-6">Comments</h1>
 
+    <!-- Map View -->
+    <UCard class="mb-6">
+      <div class="p-4">
+        <h2 class="text-2xl font-bold mb-4">Map View</h2>
+        <GeoMap 
+          ref="mapRef"
+          :markers="mapObjects"
+          @bounds-change="handleBoundsChange"
+        />
+      </div>
+    </UCard>
+
     <!-- List of Comments -->
     <transition-group name="comment" tag="div" class="space-y-4">
       <UCard v-for="comment in comments" :key="comment.id" class="hover:shadow-md transition-shadow">
@@ -15,9 +27,14 @@
             <div class="grid grid-cols-2 gap-4 text-sm">
               <div>
                 <p class="text-gray-600">Position</p>
-                <p>Lat: {{ comment.position.coordinates[1].toFixed(6) }}°</p>
-                <p>Lng: {{ comment.position.coordinates[0].toFixed(6) }}°</p>
-                <p>Alt: {{ comment.altitude.toFixed(2) }}m</p>
+                <button 
+                  @click="focusOnComment(comment)"
+                  class="text-blue-600 hover:underline text-left"
+                >
+                  <p>Lat: {{ comment.position.coordinates[1].toFixed(6) }}°</p>
+                  <p>Lng: {{ comment.position.coordinates[0].toFixed(6) }}°</p>
+                  <p>Alt: {{ comment.altitude.toFixed(2) }}m</p>
+                </button>
               </div>
               <div>
                 <p class="text-gray-600">Cloud Anchor</p>
@@ -51,7 +68,8 @@
 </template>
 
 <script setup>
-import { GeoCommentService } from '~/generated'
+import { GeoCommentService, GeoObjectService } from '~/generated'
+import GeoMap from '~/components/GeoMap.vue'
 
 const comments = ref([])
 const pagination = ref({
@@ -61,28 +79,50 @@ const pagination = ref({
   totalPages: 0
 })
 
+const mapRef = ref(null)
+
 const formatDate = (dateString) => {
   return new Date(dateString).toLocaleString()
 }
 
-const fetchComments = async () => {
-  const { data: response } = await GeoCommentService.findAll({
-    query: {
-      page: pagination.value.page,
-      limit: pagination.value.limit
+const fetchComments = async (bounds = null) => {
+  try {
+    let response
+    if (bounds) {
+      response = await GeoObjectService.findObjectsInBounds({
+        query: {
+          ...bounds,
+          type: 'GeoComment',
+          page: pagination.value.page,
+          limit: pagination.value.limit
+        }
+      })
+    } else {
+      response = await GeoCommentService.findAll({
+        query: {
+          page: pagination.value.page,
+          limit: pagination.value.limit
+        }
+      })
     }
-  })
 
-  const {
-    data,
-    limit,
-    page,
-    total,
-    totalPages
-  } = response
+    const {
+      data,
+      limit,
+      page,
+      total,
+      totalPages
+    } = response.data
 
-  comments.value = data
-  pagination.value = { limit, page, total, totalPages }
+    comments.value = data
+    pagination.value = { limit, page, total, totalPages }
+  } catch (error) {
+    console.error('Failed to fetch comments:', error)
+  }
+}
+
+const handleBoundsChange = (bounds) => {
+  fetchComments(bounds)
 }
 
 const viewComment = (comment) => {
@@ -97,6 +137,32 @@ const deleteComment = async (id) => {
     console.error('Failed to delete comment:', error)
   }
 }
+
+const focusOnComment = (comment) => {
+  if (mapRef.value) {
+    mapRef.value.setView(
+      [comment.position.coordinates[1], comment.position.coordinates[0]],
+      15
+    )
+  }
+}
+
+const mapObjects = computed(() => {
+  return comments.value.map(comment => ({
+    position: [
+      comment.position.coordinates[1],
+      comment.position.coordinates[0]
+    ],
+    icon: `<div class="w-6 h-6 rounded-full flex items-center justify-center bg-green-500 text-white text-xs">💬</div>`,
+    content: `
+      <div class="p-2">
+        <p class="font-semibold">GeoComment</p>
+        <p class="text-sm text-gray-600">Altitude: ${comment.altitude.toFixed(2)}m</p>
+        <p class="text-sm text-gray-600">Text: ${comment.text}</p>
+      </div>
+    `
+  }))
+})
 
 // Fetch initial comments when the component mounts
 onMounted(() => {

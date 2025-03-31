@@ -444,15 +444,28 @@ export type GetFileResponse = (unknown);
 
 export type GetFileError = unknown;
 
-export type FindOneGeoObjectData = {
-    path: {
-        id: string;
+export type FindObjectsInBoundsData = {
+    query: {
+        limit?: number;
+        limit?: number;
+        maxLat: number;
+        maxLat: number;
+        maxLon: number;
+        maxLon: number;
+        minLat: number;
+        minLat: number;
+        minLon: number;
+        minLon: number;
+        page?: number;
+        page?: number;
+        type?: string;
+        type?: string;
     };
 };
 
-export type FindOneGeoObjectResponse = (GeoObject);
+export type FindObjectsInBoundsResponse = (unknown);
 
-export type FindOneGeoObjectError = unknown;
+export type FindObjectsInBoundsError = unknown;
 
 export type FindGeoObjectsInAreaData = {
     path: {
@@ -466,14 +479,6 @@ export type FindGeoObjectsInAreaResponse = (Array<GeoObject>);
 
 export type FindGeoObjectsInAreaError = unknown;
 
-export type UpdateGeoObjectData = {
-    body: UpdateGeoObjectDto;
-};
-
-export type UpdateGeoObjectResponse = (unknown);
-
-export type UpdateGeoObjectError = unknown;
-
 export type FindGeoObjectsByAnchorData = {
     path: {
         anchorId: string;
@@ -483,6 +488,24 @@ export type FindGeoObjectsByAnchorData = {
 export type FindGeoObjectsByAnchorResponse = (Array<GeoObject>);
 
 export type FindGeoObjectsByAnchorError = unknown;
+
+export type FindOneGeoObjectData = {
+    path: {
+        id: string;
+    };
+};
+
+export type FindOneGeoObjectResponse = (GeoObject);
+
+export type FindOneGeoObjectError = unknown;
+
+export type UpdateGeoObjectData = {
+    body: UpdateGeoObjectDto;
+};
+
+export type UpdateGeoObjectResponse = (unknown);
+
+export type UpdateGeoObjectError = unknown;
 
 export type CreateGeoImageData = {
     body: CreateGeoImageDto;
