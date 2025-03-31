@@ -93,7 +93,7 @@ const addMarkers = () => {
   // 清除现有标记
   markers.forEach(marker => marker.remove())
   markers = []
-
+  if (!props.objects) return
   if (props.objects.length === 0) return
 
   props.objects.forEach(obj => {
