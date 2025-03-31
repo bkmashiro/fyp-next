@@ -81,6 +81,7 @@ export type CloudAnchor = {
     anchor: {
         [key: string]: unknown;
     };
+    altitude: number;
     geoObjects: Array<GeoObject>;
 };
 
@@ -132,7 +133,8 @@ export type GeoImage = {
 
 export type CreateCloudAnchorDto = {
     cloudAnchorId: string;
-    anchorPosition: Array<(number)>;
+    position: Array<(number)>;
+    altitude: number;
 };
 
 export type CreateGeoCommentDto = {
@@ -617,6 +619,8 @@ export type FindByCloudAnchorIdData = {
     };
     query?: {
         limit?: number;
+        limit?: number;
+        page?: number;
         page?: number;
     };
 };

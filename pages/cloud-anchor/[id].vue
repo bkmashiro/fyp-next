@@ -6,6 +6,16 @@
         <div class="p-4">
           <h2 class="text-2xl font-bold mb-4">Anchor Details</h2>
 
+          <!-- Map View -->
+          <div class="border rounded-lg p-4 mb-4">
+            <h3 class="text-lg font-semibold mb-3">Map View</h3>
+            <GeoMap 
+              :objects="mapObjects"
+              :center="mapCenter"
+              :zoom="15"
+            />
+          </div>
+
           <!-- Basic Info -->
           <div class="space-y-6">
             <!-- Anchor Information -->
@@ -28,12 +38,16 @@
               <h3 class="text-lg font-semibold mb-3">Position Information</h3>
               <div class="grid grid-cols-2 gap-4">
                 <div>
-                  <p class="text-sm text-gray-600">X</p>
+                  <p class="text-sm text-gray-600">Longitude</p>
                   <p>{{ getCoordinates(cloudAnchor.anchor)[0].toFixed(6) }}</p>
                 </div>
                 <div>
-                  <p class="text-sm text-gray-600">Y</p>
+                  <p class="text-sm text-gray-600">Latitude</p>
                   <p>{{ getCoordinates(cloudAnchor.anchor)[1].toFixed(6) }}</p>
+                </div>
+                <div>
+                  <p class="text-sm text-gray-600">Altitude</p>
+                  <p>{{ cloudAnchor.altitude.toFixed(6) }}</p>
                 </div>
               </div>
             </div>
@@ -98,6 +112,7 @@
 <script setup lang="ts">
 import { CloudAnchorService, type CloudAnchor, type GeoObject } from '~/generated'
 import Id from '../comment/[id].vue'
+import GeoMap from '~/components/GeoMap.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -110,6 +125,27 @@ const formatDate = (dateString: string) => {
 const getCoordinates = (obj: { [key: string]: unknown }): number[] => {
   return (obj.coordinates as number[]) || [0, 0]
 }
+
+// 计算地图中心点
+const mapCenter = computed(() => {
+  if (!cloudAnchor.value) return [39.9042, 116.4074] as [number, number]
+  const coords = getCoordinates(cloudAnchor.value.anchor)
+  return [coords[1], coords[0]] as [number, number]
+})
+
+// 转换对象为地图可用的格式
+const mapObjects = computed(() => {
+  if (!cloudAnchor.value?.geoObjects) return []
+  return cloudAnchor.value.geoObjects.map(obj => ({
+    type: obj.type,
+    anchor: {
+      coordinates: getCoordinates(obj.anchor)
+    },
+    anchor_latitude: obj.anchor_latitude,
+    metadata: obj.metadata,
+    id: (obj as any).id
+  }))
+})
 
 const fetchAnchorDetails = async (id: string) => {
   const response = await CloudAnchorService.findOne({ path: { id: id } }) as any

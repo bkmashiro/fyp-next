@@ -223,6 +223,9 @@ export const $CloudAnchor = {
         anchor: {
             type: 'object'
         },
+        altitude: {
+            type: 'number'
+        },
         geoObjects: {
             type: 'array',
             items: {
@@ -230,7 +233,7 @@ export const $CloudAnchor = {
             }
         }
     },
-    required: ['id', 'cloudAnchorId', 'anchor', 'geoObjects']
+    required: ['id', 'cloudAnchorId', 'anchor', 'altitude', 'geoObjects']
 } as const;
 
 export const $UpdateGeoObjectDto = {
@@ -358,14 +361,17 @@ export const $CreateCloudAnchorDto = {
         cloudAnchorId: {
             type: 'string'
         },
-        anchorPosition: {
+        position: {
             type: 'array',
             items: {
                 type: 'number'
             }
+        },
+        altitude: {
+            type: 'number'
         }
     },
-    required: ['cloudAnchorId', 'anchorPosition']
+    required: ['cloudAnchorId', 'position', 'altitude']
 } as const;
 
 export const $CreateGeoCommentDto = {

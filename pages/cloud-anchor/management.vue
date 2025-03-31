@@ -15,8 +15,9 @@
               </div>
               <div>
                 <p class="text-gray-600">Position</p>
-                <p>X: {{ (anchor.anchor as any).coordinates[0].toFixed(6) }}</p>
-                <p>Y: {{ (anchor.anchor as any).coordinates[1].toFixed(6) }}</p>
+                <p>Longitude: {{ (anchor.anchor as any).coordinates[0].toFixed(6) }}</p>
+                <p>Latitude: {{ (anchor.anchor as any).coordinates[1].toFixed(6) }}</p>
+                <p>Altitude: {{ (anchor as any).altitude.toFixed(6) }}</p>
               </div>
               <div>
                 <p class="text-gray-600">Associated Objects</p>
