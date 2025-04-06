@@ -1,91 +1,92 @@
 <template>
-  <div class="register-container">
-    <el-card class="register-card">
-      <h2 class="register-title">register</h2>
-      <el-form :model="registerForm"
-               :rules="rules"
-               ref="registerFormRef">
-        <el-form-item prop="username">
-          <el-input v-model="registerForm.username"
-                    placeholder="Username"></el-input>
-        </el-form-item>
-        <el-form-item prop="password">
-          <el-input v-model="registerForm.password"
-                    type="password"
-                    placeholder="Password"
-                    show-password></el-input>
-        </el-form-item>
-        <el-form-item>
-          <el-button type="primary"
-                     @click="onSubmit">register</el-button>
-        </el-form-item>
-      </el-form>
-    </el-card>
+  <div class="min-h-screen flex items-center justify-center bg-gray-50">
+    <UCard class="w-full max-w-md p-8 space-y-6">
+      <div class="text-center">
+        <h1 class="text-2xl font-bold text-gray-900">Create an account</h1>
+        <p class="mt-2 text-sm text-gray-600">Please fill in your details</p>
+      </div>
+      
+      <form @submit.prevent="onSubmit" class="space-y-4">
+        <UFormGroup label="Username" name="username">
+          <UInput
+            v-model="registerForm.username"
+            placeholder="Choose a username"
+            :ui="{ base: 'w-full' }"
+          />
+        </UFormGroup>
+
+        <UFormGroup label="Password" name="password">
+          <UInput
+            v-model="registerForm.password"
+            type="password"
+            placeholder="Choose a password"
+            :ui="{ base: 'w-full' }"
+          />
+        </UFormGroup>
+
+        <UButton
+          type="submit"
+          color="primary"
+          block
+          :loading="loading"
+        >
+          Sign up
+        </UButton>
+      </form>
+
+      <div class="text-center text-sm">
+        <NuxtLink to="/login" class="text-primary-600 hover:text-primary-500">
+          Already have an account? Sign in
+        </NuxtLink>
+      </div>
+    </UCard>
   </div>
 </template>
 
 <script setup>
+definePageMeta({
+  layout: 'auth'
+})
+
 import { ref } from 'vue'
-import { ElMessage } from 'element-plus'
+
+const route = useRoute()
+const router = useRouter()
 
 const registerForm = ref({
   username: '',
   password: ''
 })
 
-const registerFormRef = ref(null)
-
-const rules = {
-  username: [
-    { required: true, message: 'Please enter your username', trigger: 'blur' }
-  ],
-  password: [
-    { required: true, message: 'Please enter your password', trigger: 'blur' }
-  ]
-}
-
+const loading = ref(false)
 const { setToken } = useAuth()
 
-const onSubmit = () => {
-  registerFormRef.value.validate(async valid => {
-    if (valid) {
-      try {
-        const { access_token } = await UserService.register({
-          body: registerForm.value,
-          throwOnError: true
-        })
+const onSubmit = async () => {
+  loading.value = true
+  try {
+    const { access_token } = await UserService.register({
+      body: registerForm.value,
+      throwOnError: true
+    })
 
-        setToken(access_token)
+    setToken(access_token)
+    useToast().add({
+      title: 'Success',
+      description: 'Registration successful!',
+      color: 'green'
+    })
 
-        ElMessage.success('register successful!')
-      } catch (error) {
-        ElMessage.error('Failed to register')
-      }
-    } else {
-      ElMessage.error('Please complete the form correctly')
-    }
-  })
+    // 处理重定向
+    const redirectTo = route.query.redirect?.toString() || '/dashboard'
+    await router.push(redirectTo)
+  } catch (error) {
+    useToast().add({
+      title: 'Error',
+      description: 'Failed to register',
+      color: 'red'
+    })
+  } finally {
+    loading.value = false
+  }
 }
 </script>
-
-<style scoped>
-.register-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  background-color: #f5f5f5;
-}
-
-.register-card {
-  width: 400px;
-  padding: 20px;
-}
-
-.register-title {
-  text-align: center;
-  margin-bottom: 20px;
-  font-size: 24px;
-  font-weight: bold;
-}
-</style>

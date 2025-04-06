@@ -177,6 +177,9 @@ export const $Label = {
 export const $Scene = {
     type: 'object',
     properties: {
+        name: {
+            type: 'string'
+        },
         children: {
             type: 'array',
             items: {
@@ -188,9 +191,18 @@ export const $Scene = {
             items: {
                 '$ref': '#/components/schemas/Label'
             }
+        },
+        creator: {
+            '$ref': '#/components/schemas/User'
+        },
+        managers: {
+            type: 'array',
+            items: {
+                '$ref': '#/components/schemas/User'
+            }
         }
     },
-    required: ['children', 'labels']
+    required: ['name', 'children', 'labels', 'creator', 'managers']
 } as const;
 
 export const $GeoObject = {
@@ -515,6 +527,12 @@ export const $CreateSceneDto = {
             items: {
                 type: 'string'
             }
+        },
+        managerIds: {
+            type: 'array',
+            items: {
+                type: 'number'
+            }
         }
     },
     required: ['name', 'position']
@@ -545,6 +563,12 @@ export const $UpdateSceneDto = {
             type: 'array',
             items: {
                 type: 'string'
+            }
+        },
+        managerIds: {
+            type: 'array',
+            items: {
+                type: 'number'
             }
         }
     }

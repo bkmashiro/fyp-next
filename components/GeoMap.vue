@@ -1,5 +1,5 @@
 <template>
-  <div ref="mapContainer" class="w-full h-[400px] rounded-lg"></div>
+  <div ref="mapContainer" class="w-full h-[400px] rounded-lg map-container"></div>
 </template>
 
 <script setup lang="ts">
@@ -120,5 +120,18 @@ onUnmounted(() => {
 .custom-marker {
   background: none;
   border: none;
+}
+
+.map-container {
+  position: relative;
+  z-index: 1;
+}
+
+:deep(.leaflet-container) {
+  z-index: 1;
+}
+
+:deep(.leaflet-pane) {
+  z-index: 1;
 }
 </style> 

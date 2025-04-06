@@ -61,8 +61,11 @@ export type Label = {
 };
 
 export type Scene = {
+    name: string;
     children: Array<GeoObject>;
     labels: Array<Label>;
+    creator: User;
+    managers: Array<User>;
 };
 
 export type GeoObject = {
@@ -184,6 +187,7 @@ export type CreateSceneDto = {
     altitude?: number;
     orientation?: Array<(string)>;
     scale?: Array<(string)>;
+    managerIds?: Array<(number)>;
 };
 
 export type UpdateSceneDto = {
@@ -192,6 +196,7 @@ export type UpdateSceneDto = {
     altitude?: number;
     orientation?: Array<(string)>;
     scale?: Array<(string)>;
+    managerIds?: Array<(number)>;
 };
 
 export type CreateLabelDto = {
@@ -386,12 +391,6 @@ export type GetProfileResponse = ({
 });
 
 export type GetProfileError = unknown;
-
-export type TestResponse = ({
-    [key: string]: unknown;
-});
-
-export type TestError = unknown;
 
 export type CreateData = {
     body: CreateRoleDto;
@@ -739,6 +738,10 @@ export type FindAllScenesResponse = (Array<Scene>);
 
 export type FindAllScenesError = unknown;
 
+export type FindUserScenesResponse = (Array<Scene>);
+
+export type FindUserScenesError = unknown;
+
 export type FindOneSceneData = {
     path: {
         id: string;
@@ -801,6 +804,28 @@ export type FindByLabelData = {
 export type FindByLabelResponse = (Array<Scene>);
 
 export type FindByLabelError = unknown;
+
+export type AddManagerData = {
+    path: {
+        id: string;
+        managerId: string;
+    };
+};
+
+export type AddManagerResponse = (Scene);
+
+export type AddManagerError = unknown;
+
+export type RemoveManagerData = {
+    path: {
+        id: string;
+        managerId: string;
+    };
+};
+
+export type RemoveManagerResponse = (Scene);
+
+export type RemoveManagerError = unknown;
 
 export type CreateLabelData = {
     body: CreateLabelDto;

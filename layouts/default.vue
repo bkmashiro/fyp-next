@@ -86,6 +86,16 @@ const navigationLinks = [
     label: 'Photos',
     icon: 'i-heroicons-camera',
     to: '/photos/management'
+  },
+  {
+    label: 'Labels',
+    icon: 'i-heroicons-tag',
+    to: '/label/management'
+  },
+  {
+    label: 'Scenes',
+    icon: 'i-heroicons-camera',
+    to: '/scene'
   }
 ]
 </script>

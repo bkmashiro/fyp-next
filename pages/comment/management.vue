@@ -98,7 +98,7 @@ const fetchComments = async (bounds = null) => {
         }
       })
     } else {
-      response = await GeoCommentService.findAll({
+      response = await GeoCommentService.findUserComments({
         query: {
           page: pagination.value.page,
           limit: pagination.value.limit

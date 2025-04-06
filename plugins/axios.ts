@@ -43,9 +43,12 @@ export default defineNuxtPlugin((nuxtApp) => {
     },
     (error: { response: { status: number } }) => {
       if (error.response.status === 401) {
-        // 清除过期的令牌并重定向到登录页面
+        // 清除过期的令牌
         clearToken()
-        window.location.href = '/login'
+        // 获取当前路径并编码
+        const currentPath = encodeURIComponent(window.location.pathname + window.location.search)
+        // 重定向到登录页面，并带上重定向参数
+        window.location.href = `/login?redirect=${currentPath}`
       }
       return Promise.reject(error)
     },

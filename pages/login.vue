@@ -1,84 +1,108 @@
 <template>
-  <div class="login-container">
-    <el-card class="login-card">
-      <h2 class="login-title">Login</h2>
-      <el-form :model="loginForm" :rules="rules" ref="loginFormRef">
-        <el-form-item prop="username">
-          <el-input v-model="loginForm.username" placeholder="Username"></el-input>
-        </el-form-item>
-        <el-form-item prop="password">
-          <el-input v-model="loginForm.password" type="password" placeholder="Password" show-password></el-input>
-        </el-form-item>
-        <el-form-item>
-          <el-button type="primary" @click="onSubmit">Login</el-button>
-        </el-form-item>
-      </el-form>
-    </el-card>
+  <div class="min-h-screen flex items-center justify-center bg-gray-50">
+    <UCard class="w-full max-w-md p-8 space-y-6">
+      <div class="text-center">
+        <h1 class="text-2xl font-bold text-gray-900">Welcome back</h1>
+        <p class="mt-2 text-sm text-gray-600">Please sign in to your account</p>
+      </div>
+      
+      <form @submit.prevent="onSubmit" class="space-y-4">
+        <UFormGroup label="Username" name="username">
+          <UInput
+            v-model="loginForm.username"
+            placeholder="Enter your username"
+            :ui="{ base: 'w-full' }"
+          />
+        </UFormGroup>
+
+        <UFormGroup label="Password" name="password">
+          <UInput
+            v-model="loginForm.password"
+            type="password"
+            placeholder="Enter your password"
+            :ui="{ base: 'w-full' }"
+          />
+        </UFormGroup>
+
+        <UButton
+          type="submit"
+          color="primary"
+          block
+          :loading="loading"
+        >
+          Sign in
+        </UButton>
+      </form>
+
+      <div class="text-center text-sm">
+        <NuxtLink to="/register" class="text-primary-600 hover:text-primary-500">
+          Don't have an account? Sign up
+        </NuxtLink>
+      </div>
+    </UCard>
   </div>
 </template>
 
 <script setup>
+definePageMeta({
+  layout: 'auth'
+})
+
 import { ref } from 'vue'
-import { ElMessage } from 'element-plus'
+
+const route = useRoute()
+const router = useRouter()
 
 const loginForm = ref({
   username: '',
   password: ''
 })
 
-const loginFormRef = ref(null)
-
-const rules = {
-  username: [
-    { required: true, message: 'Please enter your username', trigger: 'blur' }
-  ],
-  password: [
-    { required: true, message: 'Please enter your password', trigger: 'blur' }
-  ]
-}
-
+const loading = ref(false)
 const { setToken } = useAuth()
 
-const onSubmit = () => {
-  loginFormRef.value.validate(async valid => {
-    if (valid) {
-      try {
-        const { access_token } = await AuthService.login({
-          body: loginForm.value,
-          throwOnError: true
-        })
+const onSubmit = async () => {
+  loading.value = true
+  try {
+    const { access_token } = (await AuthService.login({
+      body: loginForm.value,
+      // throwOnError: true
+    })).data
 
-        setToken(access_token)
+    if (!access_token) {
+      useToast().add({
+        title: 'Error',
+        description: 'Login failed',
+        color: 'red'
+      })
 
-        ElMessage.success('Login successful!')
-      } catch (error) {
-        ElMessage.error('Wrong username or password')
-      }
-    } else {
-      ElMessage.error('Please complete the form correctly')
+      return
     }
-  })
+
+    setToken(access_token)
+    console.log('access_token', access_token)
+
+    const toast = useToast()
+    toast.add({
+      title: 'Success',
+      description: 'Login successful!',
+      color: 'green',
+      timeout: 3000
+    })
+
+    // 处理重定向
+    const redirectTo = route.query.redirect?.toString() || '/dashboard'
+    await router.push(redirectTo)
+  } catch (error) {
+    const toast = useToast()
+    toast.add({
+      title: 'Error',
+      description: 'Wrong username or password',
+      color: 'red',
+      timeout: 3000
+    })
+  } finally {
+    loading.value = false
+  }
 }
 </script>
-
-<style scoped>
-.login-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  background-color: #f5f5f5;
-}
-
-.login-card {
-  width: 400px;
-  padding: 20px;
-}
-
-.login-title {
-  text-align: center;
-  margin-bottom: 20px;
-  font-size: 24px;
-  font-weight: bold;
-}
-</style>
