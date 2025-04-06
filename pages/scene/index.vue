@@ -123,8 +123,15 @@
           </UFormGroup>
           <UFormGroup label="Position"
                       required>
-            <GeoMapPicker :initial-position="[sceneForm.position[0], sceneForm.position[1]]"
-                          @select="handlePositionSelect" />
+            <GeoMapPicker 
+              :lat="sceneForm.position[1]"
+              :lng="sceneForm.position[0]"
+              :altitude="sceneForm.altitude"
+              :initial-position="{
+                lat: sceneForm.position[1],
+                lng: sceneForm.position[0]
+              }"
+            />
           </UFormGroup>
           <UFormGroup label="Altitude">
             <UInput v-model="sceneForm.altitude"
@@ -157,6 +164,8 @@ import type { BadgeColor } from '#ui/types'
 import GeoMap from '~/components/GeoMap.vue'
 import GeoMapPicker from '~/components/GeoMapPicker.vue'
 import { SceneService } from '~/generated'
+import { ref, computed, onMounted, watch } from 'vue'
+import { useMapPickerStore } from '~/stores/mapPicker'
 
 interface MapInstance {
   setView: (latlng: [number, number], zoom: number) => void
@@ -185,6 +194,7 @@ const isModalOpen = ref(false)
 const isEditing = ref(false)
 const currentSceneId = ref<string | null>(null)
 const mapRef = ref<MapInstance | null>(null)
+const mapPickerRef = ref<InstanceType<typeof GeoMapPicker> | null>(null)
 
 // 表单数据
 const sceneForm = ref({
@@ -337,9 +347,18 @@ const handleBoundsChange = (bounds) => {
   console.log('Bounds changed:', bounds)
 }
 
-const handlePositionSelect = (position: [number, number]) => {
-  sceneForm.value.position = position
-}
+const mapPickerStore = useMapPickerStore()
+
+// 监听位置变化
+watch(() => mapPickerStore.selectedPosition, (newPosition) => {
+  if (newPosition) {
+    console.log('Position selected:', newPosition)
+    sceneForm.value.position = [newPosition.lng, newPosition.lat]
+    sceneForm.value.altitude = newPosition.altitude
+    saveScene()
+    closeModal()
+  }
+})
 
 // 初始化
 onMounted(() => {

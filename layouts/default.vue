@@ -11,10 +11,6 @@
               variant="ghost"
               @click="isSidebarOpen = !isSidebarOpen"
             />
-            <NuxtLink to="/" class="flex items-center gap-2">
-              <UIcon name="i-heroicons-map" class="text-2xl text-primary-500" />
-              <span class="font-bold text-xl">GeoAR</span>
-            </NuxtLink>
           </div>
           <div class="flex items-center">
             <UButton
@@ -33,12 +29,18 @@
     <div class="flex">
       <!-- Sidebar -->
       <aside
-        class="fixed top-16 left-0 bg-white border-r transition-all duration-300 h-[calc(100vh-64px)] overflow-hidden"
+        class="fixed top-0 left-0 bg-white border-r transition-all duration-300 h-screen overflow-hidden z-10"
         :class="[
           isSidebarOpen ? 'w-64 translate-x-0' : 'w-0 -translate-x-full'
         ]"
       >
-        <nav class="p-4 space-y-1 h-full overflow-y-auto">
+        <div class="h-16 flex items-center px-4 border-b">
+          <NuxtLink to="/" class="flex items-center gap-2">
+            <UIcon name="i-heroicons-map" class="text-2xl text-primary-500" />
+            <span class="font-bold text-xl">GeoAR</span>
+          </NuxtLink>
+        </div>
+        <nav class="p-4 space-y-1 h-[calc(100vh-64px)] overflow-y-auto">
           <NuxtLink
             v-for="link in navigationLinks"
             :key="link.to"

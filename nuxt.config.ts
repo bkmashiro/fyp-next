@@ -33,7 +33,12 @@ export default defineNuxtConfig({
   },
 
   ssr: false,
-  modules: ['@element-plus/nuxt', '@nuxt/ui', '@nuxt/image'],
+  modules: [
+    '@element-plus/nuxt',
+    '@nuxt/ui',
+    '@nuxt/image',
+    '@pinia/nuxt'
+  ],
   experimental: {
     viewTransition: true,
   },

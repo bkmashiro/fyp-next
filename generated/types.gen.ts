@@ -878,3 +878,20 @@ export type ExtractWatermarkData = {
 export type ExtractWatermarkResponse = (string);
 
 export type ExtractWatermarkError = unknown;
+
+export type GetStatisticsResponse = ({
+    /**
+     * Cloud Anchors 总数
+     */
+    cloudAnchorsCount?: number;
+    /**
+     * Geo Images 总数
+     */
+    geoImagesCount?: number;
+    /**
+     * Geo Comments 总数
+     */
+    geoCommentsCount?: number;
+});
+
+export type GetStatisticsError = unknown;

@@ -79,41 +79,151 @@
           <div class="space-y-4">
             <div>
               <p class="text-gray-600">Position</p>
-              <UButton
-                variant="link"
-                color="blue"
-                @click="focusOnScene"
-              >
-                <p>Lat: {{ scene?.position.coordinates[1].toFixed(6) }}°</p>
-                <p>Lng: {{ scene?.position.coordinates[0].toFixed(6) }}°</p>
-                <p>Alt: {{ scene?.altitude.toFixed(2) }}m</p>
-              </UButton>
+              <div v-if="!isEditingPosition" class="cursor-pointer hover:text-primary-600" @click="startEditingPosition">
+                <UButton
+                  variant="link"
+                  color="blue"
+                  @click="focusOnScene"
+                >
+                  <p>Lat: {{ scene?.position.coordinates[1].toFixed(6) }}°</p>
+                  <p>Lng: {{ scene?.position.coordinates[0].toFixed(6) }}°</p>
+                  <p>Alt: {{ scene?.altitude.toFixed(2) }}m</p>
+                </UButton>
+              </div>
+              <div v-else class="space-y-2">
+                <GeoMapPicker
+                  :lat="editingPosition.lat"
+                  :lng="editingPosition.lng"
+                  :altitude="editingPosition.altitude"
+                  :initial-position="scene ? {
+                    lat: scene.position.coordinates[1],
+                    lng: scene.position.coordinates[0]
+                  } : undefined"
+                />
+                <UFormGroup label="Altitude (m)">
+                  <UInput
+                    v-model.number="editingPosition.altitude"
+                    type="number"
+                    step="0.1"
+                  />
+                </UFormGroup>
+                <div class="flex gap-2">
+                  <UButton
+                    icon="i-heroicons-check"
+                    color="green"
+                    variant="soft"
+                    size="sm"
+                    @click="savePosition"
+                  >
+                    Save
+                  </UButton>
+                  <UButton
+                    icon="i-heroicons-x-mark"
+                    color="red"
+                    variant="soft"
+                    size="sm"
+                    @click="cancelEditingPosition"
+                  >
+                    Cancel
+                  </UButton>
+                </div>
+              </div>
             </div>
 
             <div>
               <p class="text-gray-600">Orientation (Euler Angles)</p>
-              <div class="grid grid-cols-3 gap-2 text-sm">
-                <div>
-                  <p class="text-gray-500">Roll (X)</p>
-                  <p>{{ orientationDegrees[0] }}</p>
+              <div v-if="!isEditingOrientation">
+                <div class="grid grid-cols-3 gap-2 text-sm cursor-pointer hover:text-primary-600" @click="startEditingOrientation">
+                  <div>
+                    <p class="text-gray-500">Roll (X)</p>
+                    <p>{{ orientationDegrees[0] }}</p>
+                  </div>
+                  <div>
+                    <p class="text-gray-500">Pitch (Y)</p>
+                    <p>{{ orientationDegrees[1] }}</p>
+                  </div>
+                  <div>
+                    <p class="text-gray-500">Yaw (Z)</p>
+                    <p>{{ orientationDegrees[2] }}</p>
+                  </div>
                 </div>
-                <div>
-                  <p class="text-gray-500">Pitch (Y)</p>
-                  <p>{{ orientationDegrees[1] }}</p>
-                </div>
-                <div>
-                  <p class="text-gray-500">Yaw (Z)</p>
-                  <p>{{ orientationDegrees[2] }}</p>
+                <p class="text-xs text-gray-400 mt-1">Original Quaternion: [{{ scene?.orientation.map(v => v.toFixed(6)).join(', ') }}]</p>
+              </div>
+              <div v-else class="space-y-2">
+                <UFormGroup label="Quaternion (x, y, z, w)">
+                  <div class="grid grid-cols-4 gap-2">
+                    <UInput
+                      v-for="(_, index) in editingOrientation"
+                      :key="index"
+                      v-model.number="editingOrientation[index]"
+                      type="number"
+                      step="0.000001"
+                    />
+                  </div>
+                </UFormGroup>
+                <div class="flex gap-2">
+                  <UButton
+                    icon="i-heroicons-check"
+                    color="green"
+                    variant="soft"
+                    size="sm"
+                    @click="saveOrientation"
+                  >
+                    Save
+                  </UButton>
+                  <UButton
+                    icon="i-heroicons-x-mark"
+                    color="red"
+                    variant="soft"
+                    size="sm"
+                    @click="cancelEditingOrientation"
+                  >
+                    Cancel
+                  </UButton>
                 </div>
               </div>
-              <p class="text-xs text-gray-400 mt-1">Original Quaternion: [{{ scene?.orientation.map(v => v.toFixed(6)).join(', ') }}]</p>
             </div>
 
             <div>
               <p class="text-gray-600">Scale</p>
-              <p class="text-sm">
-                [{{ scene?.scale.map(v => v.toFixed(6)).join(', ') }}]
-              </p>
+              <div v-if="!isEditingScale" class="cursor-pointer hover:text-primary-600" @click="startEditingScale">
+                <p class="text-sm">
+                  [{{ scene?.scale.map(v => v.toFixed(6)).join(', ') }}]
+                </p>
+              </div>
+              <div v-else class="space-y-2">
+                <UFormGroup label="Scale (x, y, z)">
+                  <div class="grid grid-cols-3 gap-2">
+                    <UInput
+                      v-for="(_, index) in editingScale"
+                      :key="index"
+                      v-model.number="editingScale[index]"
+                      type="number"
+                      step="0.000001"
+                    />
+                  </div>
+                </UFormGroup>
+                <div class="flex gap-2">
+                  <UButton
+                    icon="i-heroicons-check"
+                    color="green"
+                    variant="soft"
+                    size="sm"
+                    @click="saveScale"
+                  >
+                    Save
+                  </UButton>
+                  <UButton
+                    icon="i-heroicons-x-mark"
+                    color="red"
+                    variant="soft"
+                    size="sm"
+                    @click="cancelEditingScale"
+                  >
+                    Cancel
+                  </UButton>
+                </div>
+              </div>
             </div>
 
             <div>
@@ -287,6 +397,7 @@
 <script setup lang="ts">
 import type { BadgeColor } from '#ui/types'
 import GeoMap from '~/components/GeoMap.vue'
+import GeoMapPicker from '~/components/GeoMapPicker.vue'
 import { LabelService, SceneService } from '~/generated'
 import { quaternionToEuler, eulerRadToDeg, formatDegree } from '~/utils/quaternion'
 
@@ -330,6 +441,32 @@ const isEditingName = ref(false)
 const editingName = ref('')
 const isEditingDescription = ref(false)
 const editingDescription = ref('')
+const isEditingPosition = ref(false)
+const editingPosition = ref({
+  lat: 0,
+  lng: 0,
+  altitude: 0
+})
+const isEditingOrientation = ref(false)
+const editingOrientation = ref([0, 0, 0, 1])
+const isEditingScale = ref(false)
+const editingScale = ref([1, 1, 1])
+
+// 在 script 部分添加
+const mapPickerStore = useMapPickerStore()
+
+// 监听位置变化
+watch(() => mapPickerStore.selectedPosition, (newPosition) => {
+  if (newPosition) {
+    console.log('Position selected:', newPosition)
+    editingPosition.value = {
+      lat: newPosition.lat,
+      lng: newPosition.lng,
+      altitude: newPosition.altitude
+    }
+    savePosition()
+  }
+})
 
 // 计算属性
 const mapObjects = computed(() => {
@@ -555,6 +692,92 @@ const saveDescription = async () => {
 const cancelEditingDescription = () => {
   isEditingDescription.value = false
   editingDescription.value = ''
+}
+
+const startEditingPosition = () => {
+  if (scene.value) {
+    editingPosition.value = {
+      lat: scene.value.position.coordinates[1],
+      lng: scene.value.position.coordinates[0],
+      altitude: scene.value.altitude
+    }
+    isEditingPosition.value = true
+  }
+}
+
+const savePosition = async () => {
+  if (!scene.value) return
+  
+  try {
+    await SceneService.updateScene({
+      path: { id: scene.value.id },
+      body: {
+        position: [editingPosition.value.lng, editingPosition.value.lat] as any,
+        altitude: editingPosition.value.altitude
+      }
+    })
+    scene.value.position.coordinates = [editingPosition.value.lng, editingPosition.value.lat]
+    scene.value.altitude = editingPosition.value.altitude
+    isEditingPosition.value = false
+  } catch (error) {
+    console.error('Error updating scene position:', error)
+  }
+}
+
+const cancelEditingPosition = () => {
+  isEditingPosition.value = false
+}
+
+const startEditingOrientation = () => {
+  if (scene.value) {
+    editingOrientation.value = [...scene.value.orientation]
+    isEditingOrientation.value = true
+  }
+}
+
+const saveOrientation = async () => {
+  if (!scene.value) return
+  
+  try {
+    await SceneService.updateScene({
+      path: { id: scene.value.id },
+      body: { orientation: editingOrientation.value as any }
+    })
+    scene.value.orientation = [...editingOrientation.value]
+    isEditingOrientation.value = false
+  } catch (error) {
+    console.error('Error updating scene orientation:', error)
+  }
+}
+
+const cancelEditingOrientation = () => {
+  isEditingOrientation.value = false
+}
+
+const startEditingScale = () => {
+  if (scene.value) {
+    editingScale.value = [...scene.value.scale]
+    isEditingScale.value = true
+  }
+}
+
+const saveScale = async () => {
+  if (!scene.value) return
+  
+  try {
+    await SceneService.updateScene({
+      path: { id: scene.value.id },
+      body: { scale: editingScale.value as any }
+    })
+    scene.value.scale = [...editingScale.value]
+    isEditingScale.value = false
+  } catch (error) {
+    console.error('Error updating scene scale:', error)
+  }
+}
+
+const cancelEditingScale = () => {
+  isEditingScale.value = false
 }
 
 // 初始化

@@ -8,7 +8,8 @@
         <div class="p-4">
           <div class="flex items-center gap-4">
             <div class="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center">
-              <UIcon name="i-heroicons-map-pin" class="text-2xl text-purple-500" />
+              <UIcon name="i-heroicons-map-pin"
+                     class="text-2xl text-purple-500" />
             </div>
             <div>
               <p class="text-sm text-gray-600">Cloud Anchors</p>
@@ -22,7 +23,8 @@
         <div class="p-4">
           <div class="flex items-center gap-4">
             <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center">
-              <UIcon name="i-heroicons-camera" class="text-2xl text-blue-500" />
+              <UIcon name="i-heroicons-camera"
+                     class="text-2xl text-blue-500" />
             </div>
             <div>
               <p class="text-sm text-gray-600">Geo Images</p>
@@ -36,7 +38,8 @@
         <div class="p-4">
           <div class="flex items-center gap-4">
             <div class="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center">
-              <UIcon name="i-heroicons-chat-bubble-left" class="text-2xl text-green-500" />
+              <UIcon name="i-heroicons-chat-bubble-left"
+                     class="text-2xl text-green-500" />
             </div>
             <div>
               <p class="text-sm text-gray-600">Geo Comments</p>
@@ -50,7 +53,8 @@
         <div class="p-4">
           <div class="flex items-center gap-4">
             <div class="w-12 h-12 rounded-full bg-orange-100 flex items-center justify-center">
-              <UIcon name="i-heroicons-star" class="text-2xl text-orange-500" />
+              <UIcon name="i-heroicons-star"
+                     class="text-2xl text-orange-500" />
             </div>
             <div>
               <p class="text-sm text-gray-600">Recommended</p>
@@ -66,30 +70,29 @@
       <div class="p-4">
         <div class="flex justify-between items-center mb-4">
           <h2 class="text-2xl font-bold">Map View</h2>
-          <UButton
-            icon="i-heroicons-arrows-pointing-out"
-            color="gray"
-            variant="ghost"
-            @click="fitMapToBounds"
-          >
+          <UButton icon="i-heroicons-arrows-pointing-out"
+                   color="gray"
+                   variant="ghost"
+                   @click="fitMapToBounds">
             Fit to Bounds
           </UButton>
         </div>
-        <GeoMap 
-          ref="mapRef"
-          :markers="mapObjects"
-          @bounds-change="handleBoundsChange"
-        />
+        <GeoMap ref="mapRef"
+                :markers="mapObjects"
+                @bounds-change="handleBoundsChange" />
       </div>
     </UCard>
 
     <!-- Content Tabs -->
-    <UTabs :items="tabs" class="mb-6">
+    <UTabs :items="tabs"
+           class="mb-6">
       <template #item="{ item }">
         <UCard>
           <div class="p-4">
             <div class="space-y-4">
-              <div v-for="obj in item.content" :key="obj.id" class="border rounded-lg p-4">
+              <div v-for="obj in item.content"
+                   :key="obj.id"
+                   class="border rounded-lg p-4">
                 <div class="flex justify-between items-start">
                   <div class="flex-1">
                     <div class="flex items-center gap-2 mb-2">
@@ -102,11 +105,9 @@
                     <div class="grid grid-cols-2 gap-4 text-sm">
                       <div>
                         <p class="text-gray-600">Position</p>
-                        <UButton
-                          variant="link"
-                          color="blue"
-                          @click="focusOnObject(obj)"
-                        >
+                        <UButton variant="link"
+                                 color="blue"
+                                 @click="focusOnObject(obj)">
                           <p>Lat: {{ obj.position.coordinates[1].toFixed(6) }}°</p>
                           <p>Lng: {{ obj.position.coordinates[0].toFixed(6) }}°</p>
                           <p>Alt: {{ obj.altitude.toFixed(2) }}m</p>
@@ -115,21 +116,17 @@
                     </div>
                   </div>
                   <div class="flex flex-col gap-2">
-                    <UButton
-                      color="primary"
-                      variant="soft"
-                      size="sm"
-                      @click="viewObject(obj)"
-                    >
+                    <UButton color="primary"
+                             variant="soft"
+                             size="sm"
+                             @click="viewObject(obj)">
                       View Details
                     </UButton>
-                    <UButton
-                      v-if="item.key === 'my'"
-                      color="red"
-                      variant="soft"
-                      size="sm"
-                      @click="deleteObject(obj.id)"
-                    >
+                    <UButton v-if="item.key === 'my'"
+                             color="red"
+                             variant="soft"
+                             size="sm"
+                             @click="deleteObject(obj.id)">
                       Delete
                     </UButton>
                   </div>
@@ -145,7 +142,18 @@
 
 <script setup lang="ts">
 import GeoMap from '~/components/GeoMap.vue'
-import type { TabItem } from '#ui/types'
+
+
+onMounted(async () => {
+  const statistics = (await StatisticsService.getStatistics()).data!
+  stats.value = {
+    anchors: statistics.cloudAnchorsCount ?? 0,
+    images: statistics.geoImagesCount ?? 0,
+    comments: statistics.geoCommentsCount ?? 0,
+    recommended: 0 // 暂时保持为0，等待后续实现
+  }
+})
+
 
 interface MapInstance {
   setView: (latlng: [number, number], zoom: number) => void
@@ -199,12 +207,12 @@ const recommendedObjects = ref<GeoObject[]>([
 ])
 
 // 统计信息
-const stats = computed(() => ({
-  anchors: 5, // 占位数据
-  images: myObjects.value.filter(obj => obj.type === 'GeoImage').length,
-  comments: myObjects.value.filter(obj => obj.type === 'GeoComment').length,
-  recommended: recommendedObjects.value.length
-}))
+const stats = ref({
+  anchors: 0,
+  images: 0,
+  comments: 0,
+  recommended: 0
+})
 
 // 标签页配置
 const tabs = computed(() => [
@@ -230,9 +238,8 @@ const mapObjects = computed(() => {
   const markers = [
     ...myObjects.value.map(obj => ({
       position: [obj.position.coordinates[1], obj.position.coordinates[0]] as [number, number],
-      icon: `<div class="w-6 h-6 rounded-full flex items-center justify-center ${
-        obj.type === 'GeoImage' ? 'bg-blue-500' : 'bg-green-500'
-      } text-white text-xs">${obj.type === 'GeoImage' ? '📷' : '💬'}</div>`,
+      icon: `<div class="w-6 h-6 rounded-full flex items-center justify-center ${obj.type === 'GeoImage' ? 'bg-blue-500' : 'bg-green-500'
+        } text-white text-xs">${obj.type === 'GeoImage' ? '📷' : '💬'}</div>`,
       content: `
         <div class="p-2">
           <p class="font-semibold">${obj.type}</p>
@@ -243,9 +250,8 @@ const mapObjects = computed(() => {
     })),
     ...recommendedObjects.value.map(obj => ({
       position: [obj.position.coordinates[1], obj.position.coordinates[0]] as [number, number],
-      icon: `<div class="w-6 h-6 rounded-full flex items-center justify-center ${
-        obj.type === 'GeoImage' ? 'bg-blue-500' : 'bg-green-500'
-      } text-white text-xs">${obj.type === 'GeoImage' ? '📷' : '💬'}</div>`,
+      icon: `<div class="w-6 h-6 rounded-full flex items-center justify-center ${obj.type === 'GeoImage' ? 'bg-blue-500' : 'bg-green-500'
+        } text-white text-xs">${obj.type === 'GeoImage' ? '📷' : '💬'}</div>`,
       content: `
         <div class="p-2">
           <p class="font-semibold">${obj.type}</p>
@@ -302,4 +308,4 @@ h1 {
 ::view-transition-new(header) {
   width: auto;
 }
-</style> 
+</style>
