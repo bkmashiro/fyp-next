@@ -180,6 +180,9 @@ export const $Scene = {
         name: {
             type: 'string'
         },
+        description: {
+            type: 'string'
+        },
         children: {
             type: 'array',
             items: {
@@ -202,7 +205,7 @@ export const $Scene = {
             }
         }
     },
-    required: ['name', 'children', 'labels', 'creator', 'managers']
+    required: ['name', 'description', 'children', 'labels', 'creator', 'managers']
 } as const;
 
 export const $GeoObject = {
@@ -507,6 +510,9 @@ export const $CreateSceneDto = {
         name: {
             type: 'string'
         },
+        description: {
+            type: 'string'
+        },
         position: {
             type: 'array',
             items: {
@@ -542,6 +548,9 @@ export const $UpdateSceneDto = {
     type: 'object',
     properties: {
         name: {
+            type: 'string'
+        },
+        description: {
             type: 'string'
         },
         position: {

@@ -24,6 +24,11 @@ const props = defineProps<{
   markers: MapMarker[]
   center?: [number, number]
   zoom?: number
+  initialPosition?: {
+    lat: number
+    lng: number
+    zoom?: number
+  }
 }>()
 
 const emit = defineEmits<{
@@ -50,7 +55,12 @@ const initMap = () => {
   const defaultCenter: [number, number] = props.markers[0]?.position || props.center || [39.9042, 116.4074]
   const defaultZoom = props.zoom || 15
 
-  map = L.map(mapContainer.value).setView(defaultCenter, defaultZoom)
+  map = L.map(mapContainer.value).setView(
+    props.initialPosition 
+      ? [props.initialPosition.lat, props.initialPosition.lng]
+      : defaultCenter,
+    props.initialPosition?.zoom || defaultZoom
+  )
   
   // 添加地图图层
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -103,6 +113,13 @@ const addMarkers = () => {
 watch(() => props.markers, () => {
   addMarkers()
 }, { deep: true })
+
+// 监听初始位置变化
+watch(() => props.initialPosition, (newPosition) => {
+  if (map && newPosition) {
+    map.setView([newPosition.lat, newPosition.lng], newPosition.zoom || 15)
+  }
+}, { immediate: true })
 
 onMounted(() => {
   initMap()

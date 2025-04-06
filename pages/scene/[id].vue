@@ -2,8 +2,63 @@
   <div class="p-6">
     <div class="flex justify-between items-center mb-6">
       <div>
-        <h1 class="text-3xl font-bold">{{ scene?.name }}</h1>
-        <p class="text-gray-600 mt-1">{{ scene?.description || 'No description' }}</p>
+        <div class="flex items-center gap-2">
+          <h1 v-if="!isEditingName" class="text-3xl font-bold cursor-pointer hover:text-primary-600" @click="startEditingName">
+            {{ scene?.name }}
+          </h1>
+          <div v-else class="flex items-center gap-2">
+            <UInput
+              v-model="editingName"
+              class="text-3xl font-bold"
+              @keyup.enter="saveName"
+              @keyup.esc="cancelEditingName"
+            />
+            <UButton
+              icon="i-heroicons-check"
+              color="green"
+              variant="ghost"
+              size="sm"
+              @click="saveName"
+            />
+            <UButton
+              icon="i-heroicons-x-mark"
+              color="red"
+              variant="ghost"
+              size="sm"
+              @click="cancelEditingName"
+            />
+          </div>
+        </div>
+        <div class="flex items-center gap-2 mt-1">
+          <p v-if="!isEditingDescription" 
+             class="text-gray-600 cursor-pointer hover:text-primary-600" 
+             @click="startEditingDescription">
+            {{ scene?.description || 'No description' }}
+          </p>
+          <div v-else class="flex items-center gap-2 flex-1">
+            <UTextarea
+              v-model="editingDescription"
+              class="flex-1"
+              :rows="2"
+              @keyup.enter="saveDescription"
+              @keyup.esc="cancelEditingDescription"
+            />
+            <UButton
+              icon="i-heroicons-check"
+              color="green"
+              variant="ghost"
+              size="sm"
+              @click="saveDescription"
+            />
+            <UButton
+              icon="i-heroicons-x-mark"
+              color="red"
+              variant="ghost"
+              size="sm"
+              @click="cancelEditingDescription"
+            />
+          </div>
+        </div>
       </div>
       <UButton
         icon="i-heroicons-arrow-left"
@@ -36,10 +91,22 @@
             </div>
 
             <div>
-              <p class="text-gray-600">Orientation (Quaternion)</p>
-              <p class="text-sm">
-                [{{ scene?.orientation.map(v => v.toFixed(6)).join(', ') }}]
-              </p>
+              <p class="text-gray-600">Orientation (Euler Angles)</p>
+              <div class="grid grid-cols-3 gap-2 text-sm">
+                <div>
+                  <p class="text-gray-500">Roll (X)</p>
+                  <p>{{ orientationDegrees[0] }}</p>
+                </div>
+                <div>
+                  <p class="text-gray-500">Pitch (Y)</p>
+                  <p>{{ orientationDegrees[1] }}</p>
+                </div>
+                <div>
+                  <p class="text-gray-500">Yaw (Z)</p>
+                  <p>{{ orientationDegrees[2] }}</p>
+                </div>
+              </div>
+              <p class="text-xs text-gray-400 mt-1">Original Quaternion: [{{ scene?.orientation.map(v => v.toFixed(6)).join(', ') }}]</p>
             </div>
 
             <div>
@@ -164,6 +231,11 @@
         <GeoMap 
           ref="mapRef"
           :markers="mapObjects"
+          :initial-position="scene ? {
+            lat: scene.position.coordinates[1],
+            lng: scene.position.coordinates[0],
+            zoom: 15
+          } : undefined"
           @bounds-change="handleBoundsChange"
         />
       </div>
@@ -216,6 +288,7 @@
 import type { BadgeColor } from '#ui/types'
 import GeoMap from '~/components/GeoMap.vue'
 import { LabelService, SceneService } from '~/generated'
+import { quaternionToEuler, eulerRadToDeg, formatDegree } from '~/utils/quaternion'
 
 interface MapInstance {
   setView: (latlng: [number, number], zoom: number) => void
@@ -253,6 +326,10 @@ const availableLabels = ref<Label[]>([])
 const selectedLabelId = ref<string | undefined>(undefined)
 const isAddLabelModalOpen = ref(false)
 const mapRef = ref<MapInstance | null>(null)
+const isEditingName = ref(false)
+const editingName = ref('')
+const isEditingDescription = ref(false)
+const editingDescription = ref('')
 
 // 计算属性
 const mapObjects = computed(() => {
@@ -284,6 +361,13 @@ const mapObjects = computed(() => {
   ]
 
   return objects
+})
+
+const orientationDegrees = computed(() => {
+  if (!scene.value?.orientation) return ['0.00°', '0.00°', '0.00°']
+  const eulerRad = quaternionToEuler(scene.value.orientation)
+  const eulerDeg = eulerRadToDeg(eulerRad)
+  return eulerDeg.map(formatDegree)
 })
 
 // 方法
@@ -417,6 +501,60 @@ const handleBoundsChange = (bounds) => {
 const handleLabelSelect = (value: any) => {
   console.log('Label selected:', value)
   selectedLabelId.value = value
+}
+
+const startEditingName = () => {
+  if (scene.value) {
+    editingName.value = scene.value.name
+    isEditingName.value = true
+  }
+}
+
+const saveName = async () => {
+  if (!scene.value || !editingName.value.trim()) return
+  
+  try {
+    await SceneService.updateScene({
+      path: { id: scene.value.id },
+      body: { name: editingName.value.trim() }
+    })
+    scene.value.name = editingName.value.trim()
+    isEditingName.value = false
+  } catch (error) {
+    console.error('Error updating scene name:', error)
+  }
+}
+
+const cancelEditingName = () => {
+  isEditingName.value = false
+  editingName.value = ''
+}
+
+const startEditingDescription = () => {
+  if (scene.value) {
+    editingDescription.value = scene.value.description || ''
+    isEditingDescription.value = true
+  }
+}
+
+const saveDescription = async () => {
+  if (!scene.value) return
+  
+  try {
+    await SceneService.updateScene({
+      path: { id: scene.value.id },
+      body: { description: editingDescription.value.trim() }
+    })
+    scene.value.description = editingDescription.value.trim()
+    isEditingDescription.value = false
+  } catch (error) {
+    console.error('Error updating scene description:', error)
+  }
+}
+
+const cancelEditingDescription = () => {
+  isEditingDescription.value = false
+  editingDescription.value = ''
 }
 
 // 初始化

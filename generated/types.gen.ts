@@ -62,6 +62,7 @@ export type Label = {
 
 export type Scene = {
     name: string;
+    description: string;
     children: Array<GeoObject>;
     labels: Array<Label>;
     creator: User;
@@ -183,6 +184,7 @@ export type UpdateGeoCommentDto = {
 
 export type CreateSceneDto = {
     name: string;
+    description?: string;
     position: Array<(string)>;
     altitude?: number;
     orientation?: Array<(string)>;
@@ -192,6 +194,7 @@ export type CreateSceneDto = {
 
 export type UpdateSceneDto = {
     name?: string;
+    description?: string;
     position?: Array<(string)>;
     altitude?: number;
     orientation?: Array<(string)>;
