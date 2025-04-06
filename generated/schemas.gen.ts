@@ -152,6 +152,28 @@ export const $UpdateRoleDto = {
     properties: {}
 } as const;
 
+export const $Label = {
+    type: 'object',
+    properties: {
+        id: {
+            type: 'string'
+        },
+        name: {
+            type: 'string'
+        },
+        description: {
+            type: 'string'
+        },
+        scenes: {
+            type: 'array',
+            items: {
+                '$ref': '#/components/schemas/Scene'
+            }
+        }
+    },
+    required: ['id', 'name', 'description', 'scenes']
+} as const;
+
 export const $Scene = {
     type: 'object',
     properties: {
@@ -160,9 +182,15 @@ export const $Scene = {
             items: {
                 '$ref': '#/components/schemas/GeoObject'
             }
+        },
+        labels: {
+            type: 'array',
+            items: {
+                '$ref': '#/components/schemas/Label'
+            }
         }
     },
-    required: ['children']
+    required: ['children', 'labels']
 } as const;
 
 export const $GeoObject = {
@@ -242,34 +270,11 @@ export const $UpdateGeoObjectDto = {
         id: {
             type: 'string'
         },
-        anchor: {
+        data: {
             type: 'object'
-        },
-        anchor_latitude: {
-            type: 'number'
-        },
-        metadata: {
-            type: 'string',
-            nullable: true
-        },
-        cloudAnchorId: {
-            type: 'string',
-            nullable: true
-        },
-        relPosition: {
-            type: 'object'
-        },
-        relAltitude: {
-            type: 'number'
-        },
-        relOrientation: {
-            type: 'array',
-            items: {
-                type: 'number'
-            }
         }
     },
-    required: ['id']
+    required: ['id', 'data']
 } as const;
 
 export const $CreateGeoImageDto = {
@@ -541,6 +546,35 @@ export const $UpdateSceneDto = {
             items: {
                 type: 'string'
             }
+        }
+    }
+} as const;
+
+export const $CreateLabelDto = {
+    type: 'object',
+    properties: {
+        name: {
+            type: 'string',
+            description: '标签名称'
+        },
+        description: {
+            type: 'string',
+            description: '标签描述'
+        }
+    },
+    required: ['name']
+} as const;
+
+export const $UpdateLabelDto = {
+    type: 'object',
+    properties: {
+        name: {
+            type: 'string',
+            description: '标签名称'
+        },
+        description: {
+            type: 'string',
+            description: '标签描述'
         }
     }
 } as const;

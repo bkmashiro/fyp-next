@@ -190,7 +190,7 @@ const mapObjects = computed(() => {
 })
 
 const fetchAnchorDetails = async (id: string) => {
-  const response = await CloudAnchorService.findOne({ path: { id: id } }) as any
+  const response = await CloudAnchorService.findOneAnchor({ path: { id: id } }) as any
   cloudAnchor.value = response.data as unknown as CloudAnchor
 }
 

@@ -1,9 +1,9 @@
 <template>
-  <div>
-    <fs-form-provider>
-      <NuxtPage />
-    </fs-form-provider>
-  </div>
+  <NuxtLayout>
+    <NuxtPage />
+  </NuxtLayout>
+  <!-- <fs-form-provider> -->
+  <!-- </fs-form-provider> -->
 </template>
 
 <style scoped>

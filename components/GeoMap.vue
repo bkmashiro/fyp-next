@@ -92,7 +92,7 @@ const addMarkers = () => {
         iconSize: [24, 24],
         iconAnchor: [12, 12]
       })
-    }).addTo(map)
+    }).addTo(map!)
 
     leafletMarker.bindPopup(marker.content)
     markers.push(leafletMarker)

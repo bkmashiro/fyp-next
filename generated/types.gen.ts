@@ -53,8 +53,16 @@ export type UpdateRoleDto = {
     [key: string]: unknown;
 };
 
+export type Label = {
+    id: string;
+    name: string;
+    description: string;
+    scenes: Array<Scene>;
+};
+
 export type Scene = {
     children: Array<GeoObject>;
+    labels: Array<Label>;
 };
 
 export type GeoObject = {
@@ -87,17 +95,9 @@ export type CloudAnchor = {
 
 export type UpdateGeoObjectDto = {
     id: string;
-    anchor?: {
+    data: {
         [key: string]: unknown;
     };
-    anchor_latitude?: number;
-    metadata?: (string) | null;
-    cloudAnchorId?: (string) | null;
-    relPosition?: {
-        [key: string]: unknown;
-    };
-    relAltitude?: number;
-    relOrientation?: Array<(number)>;
 };
 
 export type CreateGeoImageDto = {
@@ -192,6 +192,28 @@ export type UpdateSceneDto = {
     altitude?: number;
     orientation?: Array<(string)>;
     scale?: Array<(string)>;
+};
+
+export type CreateLabelDto = {
+    /**
+     * 标签名称
+     */
+    name: string;
+    /**
+     * 标签描述
+     */
+    description?: string;
+};
+
+export type UpdateLabelDto = {
+    /**
+     * 标签名称
+     */
+    name?: string;
+    /**
+     * 标签描述
+     */
+    description?: string;
 };
 
 export type CreateWatermarkDto = {
@@ -503,7 +525,7 @@ export type UpdateGeoObjectData = {
     body: UpdateGeoObjectDto;
 };
 
-export type UpdateGeoObjectResponse = (unknown);
+export type UpdateGeoObjectResponse = (GeoObject);
 
 export type UpdateGeoObjectError = unknown;
 
@@ -570,6 +592,16 @@ export type FindAllAnchorsResponse = (unknown);
 
 export type FindAllAnchorsError = unknown;
 
+export type FindOneAnchorData = {
+    path: {
+        id: string;
+    };
+};
+
+export type FindOneAnchorResponse = (CloudAnchor);
+
+export type FindOneAnchorError = unknown;
+
 export type ListAnchorsData = {
     query: {
         nextPageToken: string;
@@ -617,7 +649,15 @@ export type UpdateAnchorExpireTimeResponse = ({
 
 export type UpdateAnchorExpireTimeError = unknown;
 
-export type FindAllData = {
+export type CreateCommentData = {
+    body: CreateGeoCommentDto;
+};
+
+export type CreateCommentResponse = (GeoComment);
+
+export type CreateCommentError = unknown;
+
+export type FindAllCommentsData = {
     query?: {
         limit?: number;
         limit?: number;
@@ -626,17 +666,42 @@ export type FindAllData = {
     };
 };
 
-export type DeleteData = {
+export type FindAllCommentsResponse = (unknown);
+
+export type FindAllCommentsError = unknown;
+
+export type FindOneCommentData = {
     path: {
         id: string;
     };
 };
 
-export type DeleteResponse = (GeoComment);
+export type FindOneCommentResponse = (GeoComment);
 
-export type DeleteError = unknown;
+export type FindOneCommentError = unknown;
 
-export type FindByCloudAnchorIdData = {
+export type UpdateCommentData = {
+    body: UpdateGeoCommentDto;
+    path: {
+        id: string;
+    };
+};
+
+export type UpdateCommentResponse = (GeoComment);
+
+export type UpdateCommentError = unknown;
+
+export type DeleteCommentData = {
+    path: {
+        id: string;
+    };
+};
+
+export type DeleteCommentResponse = (GeoComment);
+
+export type DeleteCommentError = unknown;
+
+export type FindCommentsByCloudAnchorIdData = {
     path: {
         cloudAnchorId: number;
     };
@@ -648,19 +713,127 @@ export type FindByCloudAnchorIdData = {
     };
 };
 
-export type FindByCloudAnchorIdResponse = (unknown);
+export type FindCommentsByCloudAnchorIdResponse = (unknown);
 
-export type FindByCloudAnchorIdError = unknown;
+export type FindCommentsByCloudAnchorIdError = unknown;
 
-export type GetStatisticsData = {
+export type GetStatisticsByCloudAnchorIdData = {
     path: {
         cloudAnchorId: number;
     };
 };
 
-export type GetStatisticsResponse = (unknown);
+export type GetStatisticsByCloudAnchorIdResponse = (unknown);
 
-export type GetStatisticsError = unknown;
+export type GetStatisticsByCloudAnchorIdError = unknown;
+
+export type CreateSceneData = {
+    body: CreateSceneDto;
+};
+
+export type CreateSceneResponse = (Scene);
+
+export type CreateSceneError = unknown;
+
+export type FindAllScenesResponse = (Array<Scene>);
+
+export type FindAllScenesError = unknown;
+
+export type FindOneSceneData = {
+    path: {
+        id: string;
+    };
+};
+
+export type FindOneSceneResponse = (Scene);
+
+export type FindOneSceneError = unknown;
+
+export type UpdateSceneData = {
+    body: UpdateSceneDto;
+    path: {
+        id: string;
+    };
+};
+
+export type UpdateSceneResponse = (Scene);
+
+export type UpdateSceneError = unknown;
+
+export type RemoveSceneData = {
+    path: {
+        id: string;
+    };
+};
+
+export type RemoveSceneResponse = (Scene);
+
+export type RemoveSceneError = unknown;
+
+export type AddLabelData = {
+    path: {
+        id: string;
+        labelId: string;
+    };
+};
+
+export type AddLabelResponse = (Scene);
+
+export type AddLabelError = unknown;
+
+export type RemoveLabelData = {
+    path: {
+        id: string;
+        labelId: string;
+    };
+};
+
+export type RemoveLabelResponse = (Scene);
+
+export type RemoveLabelError = unknown;
+
+export type FindByLabelData = {
+    path: {
+        labelId: string;
+    };
+};
+
+export type FindByLabelResponse = (Array<Scene>);
+
+export type FindByLabelError = unknown;
+
+export type CreateLabelData = {
+    body: CreateLabelDto;
+};
+
+export type CreateLabelResponse = (Label);
+
+export type CreateLabelError = unknown;
+
+export type FindAllLabelsResponse = (Array<Label>);
+
+export type FindAllLabelsError = unknown;
+
+export type FindOneLabelData = {
+    path: {
+        id: string;
+    };
+};
+
+export type FindOneLabelResponse = (Label);
+
+export type FindOneLabelError = unknown;
+
+export type UpdateLabelData = {
+    body: UpdateLabelDto;
+    path: {
+        id: string;
+    };
+};
+
+export type UpdateLabelResponse = (Label);
+
+export type UpdateLabelError = unknown;
 
 export type CreateWatermarkData = {
     body: CreateWatermarkDto;
