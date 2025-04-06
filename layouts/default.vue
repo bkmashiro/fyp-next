@@ -3,15 +3,7 @@
     <!-- Top Navigation -->
     <nav class="bg-white border-b">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between h-16">
-          <div class="flex items-center gap-4">
-            <UButton
-              icon="i-heroicons-bars-3"
-              color="gray"
-              variant="ghost"
-              @click="isSidebarOpen = !isSidebarOpen"
-            />
-          </div>
+        <div class="flex justify-end h-16">
           <div class="flex items-center">
             <UButton
               icon="i-heroicons-user-circle"
@@ -27,6 +19,27 @@
     </nav>
 
     <div class="flex">
+      <!-- Hover Menu Toggle Button -->
+      <div
+        class="fixed top-0 h-screen z-20 transition-opacity duration-200 group"
+        :class="[
+          isSidebarOpen ? 'left-64' : 'left-0',
+          'hover:opacity-100 opacity-0'
+        ]"
+      >
+        <div class="h-full w-8 flex items-center justify-center">
+          <button
+            class="bg-white rounded-r-lg p-2 shadow-lg hover:bg-gray-50 transition-colors border border-l-0"
+            @click="isSidebarOpen = !isSidebarOpen"
+          >
+            <UIcon
+              :name="isSidebarOpen ? 'i-heroicons-chevron-left' : 'i-heroicons-chevron-right'"
+              class="text-xl text-gray-600"
+            />
+          </button>
+        </div>
+      </div>
+
       <!-- Sidebar -->
       <aside
         class="fixed top-0 left-0 bg-white border-r transition-all duration-300 h-screen overflow-hidden z-10"
