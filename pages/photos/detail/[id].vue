@@ -213,21 +213,46 @@
                       <p class="text-sm text-gray-600">Transaction Hash</p>
                       <p class="truncate">{{ copyrightInfo.details.transactionHash }}</p>
                     </div>
+                    <div>
+                      <p class="text-sm text-gray-600">User ID</p>
+                      <p>{{ copyrightInfo.details.userId }}</p>
+                    </div>
+                    <div>
+                      <p class="text-sm text-gray-600">Image Hash</p>
+                      <p class="truncate">{{ copyrightInfo.details.imageHash }}</p>
+                    </div>
                   </div>
                   <div class="mt-4">
                     <p class="text-sm text-gray-600">Blockchain Info</p>
-                    <div class="grid grid-cols-3 gap-4 mt-2">
+                    <div class="grid grid-cols-2 gap-4 mt-2">
                       <div>
                         <p class="text-sm text-gray-600">Topic ID</p>
-                        <p class="truncate">{{ copyrightInfo.details.blockchainInfo?.topicId }}</p>
+                        <p class="truncate">{{ copyrightInfo.details.blockchainInfo.topicId }}</p>
                       </div>
                       <div>
                         <p class="text-sm text-gray-600">Sequence</p>
-                        <p>{{ copyrightInfo.details.blockchainInfo?.sequenceNumber }}</p>
+                        <p>{{ copyrightInfo.details.blockchainInfo.sequenceNumber }}</p>
+                      </div>
+                      <div>
+                        <p class="text-sm text-gray-600">Message</p>
+                        <p>{{ copyrightInfo.details.blockchainInfo.message }}</p>
                       </div>
                       <div>
                         <p class="text-sm text-gray-600">Timestamp</p>
-                        <p>{{ formatDate(copyrightInfo.details.blockchainInfo?.timestamp) }}</p>
+                        <p>{{ formatDate(copyrightInfo.details.blockchainInfo.timestamp) }}</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="mt-4">
+                    <p class="text-sm text-gray-600">Timestamps</p>
+                    <div class="grid grid-cols-2 gap-4 mt-2">
+                      <div>
+                        <p class="text-sm text-gray-600">Created At</p>
+                        <p>{{ formatDate(copyrightInfo.details.createdAt) }}</p>
+                      </div>
+                      <div>
+                        <p class="text-sm text-gray-600">Updated At</p>
+                        <p>{{ formatDate(copyrightInfo.details.updatedAt) }}</p>
                       </div>
                     </div>
                   </div>
@@ -236,11 +261,13 @@
                   <p class="text-gray-500">{{ copyrightInfo?.message || 'No copyright information available' }}</p>
                 </div>
                 <div class="flex space-x-4">
-                  <UButton type="primary" @click="registerCopyright" :loading="isRegistering">
+                  <UButton 
+                    v-if="!copyrightInfo?.details"
+                    type="primary" 
+                    @click="registerCopyright" 
+                    :loading="isRegistering"
+                  >
                     Register Copyright
-                  </UButton>
-                  <UButton type="default" @click="verifyCopyright" :loading="isVerifying">
-                    Verify Copyright
                   </UButton>
                 </div>
               </div>
@@ -265,11 +292,10 @@
 <script setup lang="ts">
 const route = useRoute()
 const router = useRouter()
-const photo = ref(null)
-const parsedMetadata = ref(null)
-const copyrightInfo = ref(null)
+const photo = ref<any>(null)
+const parsedMetadata = ref<any>(null)
+const copyrightInfo = ref<any>(null)
 const isRegistering = ref(false)
-const isVerifying = ref(false)
 const userStore = useUserStore()
 
 const formatFileSize = (bytes) => {
@@ -286,6 +312,11 @@ const formatDate = (dateString) => {
 
 const fetchPhotoDetails = async (id) => {
   const photo = (await GeoImageService.findOneGeoImage({ path: { id } })).data
+
+  if (!photo) {
+    throw new Error('Photo not found')
+  }
+
   if (photo.metadata) {
     parsedMetadata.value = JSON.parse(photo.metadata)
   }
@@ -296,7 +327,7 @@ const fetchPhotoDetails = async (id) => {
 const fetchCopyrightInfo = async (id) => {
   try {
     const { data } = await ConsensusService.getCopyrightInfo({ path: { geoImageId: id } })
-    if (data.status === 'NOT_FOUND') {
+    if (data!.status === 'NOT_FOUND') {
       copyrightInfo.value = null
       return
     }
@@ -314,14 +345,14 @@ const fetchCopyrightInfo = async (id) => {
 }
 
 const registerCopyright = async () => {
-  if (!photo.value || !userStore.user) return
-  
+  if (!photo.value) return
+  console.log('registerCopyright', photo.value, userStore.user)
   isRegistering.value = true
   try {
     const { data } = await ConsensusService.registerImageCopyright({
       body: {
         geoImageId: photo.value.id,
-        userId: userStore.user.id
+        userId: userStore.user!.id
       }
     })
     
@@ -342,37 +373,6 @@ const registerCopyright = async () => {
     })
   } finally {
     isRegistering.value = false
-  }
-}
-
-const verifyCopyright = async () => {
-  if (!photo.value || !userStore.user) return
-  
-  isVerifying.value = true
-  try {
-    const { data } = await ConsensusService.verifyImageCopyright({
-      body: {
-        imageHash: photo.value.imageHash,
-        userId: userStore.user.id
-      }
-    })
-    
-    useToast().add({
-      title: data.isValid ? 'Success' : 'Warning',
-      description: data.message,
-      color: data.isValid ? 'green' : 'yellow',
-      timeout: 3000
-    })
-  } catch (error: any) {
-    console.error('Failed to verify copyright:', error)
-    useToast().add({
-      title: 'Error',
-      description: error.response?.data?.message || 'Failed to verify copyright',
-      color: 'red',
-      timeout: 3000
-    })
-  } finally {
-    isVerifying.value = false
   }
 }
 

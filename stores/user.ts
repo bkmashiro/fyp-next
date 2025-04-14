@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
+import { AuthService } from '~/generated'
 
 export const useUserStore = defineStore('user', () => {
   const user = ref<{
@@ -16,9 +17,21 @@ export const useUserStore = defineStore('user', () => {
     user.value = null
   }
 
+  // const validateAndFetchUser = async () => {
+  //   try {
+  //     const { data } = await AuthService.getCurrentUser()
+  //     setUser(data)
+  //     return true
+  //   } catch (error) {
+  //     clearUser()
+  //     return false
+  //   }
+  // }
+
   return {
     user,
     setUser,
-    clearUser
+    clearUser,
+    // validateAndFetchUser
   }
 }) 
