@@ -117,7 +117,6 @@
 
 <script setup lang="ts">
 import { CloudAnchorService, type CloudAnchor, type GeoObject } from '~/generated'
-import Id from '../comment/[id].vue'
 import GeoMap from '~/components/GeoMap.vue'
 
 interface MapInstance {

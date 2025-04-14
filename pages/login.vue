@@ -49,9 +49,11 @@ definePageMeta({
 })
 
 import { ref } from 'vue'
+import { useUserStore } from '~/stores/user'
 
 const route = useRoute()
 const router = useRouter()
+const userStore = useUserStore()
 
 const loginForm = ref({
   username: '',
@@ -64,23 +66,24 @@ const { setToken } = useAuth()
 const onSubmit = async () => {
   loading.value = true
   try {
-    const { access_token } = (await AuthService.login({
+    const { data } = await AuthService.login({
       body: loginForm.value,
-      // throwOnError: true
-    })).data
+    })
 
-    if (!access_token) {
+    if (!data.access_token) {
       useToast().add({
         title: 'Error',
         description: 'Login failed',
         color: 'red'
       })
-
       return
     }
 
-    setToken(access_token)
-    console.log('access_token', access_token)
+    setToken(data.access_token)
+    
+    // 获取用户信息并存储
+    const userResponse = await AuthService.getProfile()
+    userStore.setUser(userResponse.data)
 
     const toast = useToast()
     toast.add({
@@ -94,6 +97,7 @@ const onSubmit = async () => {
     const redirectTo = route.query.redirect?.toString() || '/dashboard'
     await router.push(redirectTo)
   } catch (error) {
+    console.error('Login failed:', error)
     const toast = useToast()
     toast.add({
       title: 'Error',

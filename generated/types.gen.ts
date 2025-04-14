@@ -53,6 +53,48 @@ export type UpdateRoleDto = {
     [key: string]: unknown;
 };
 
+export type RegisterImageCopyrightDto = {
+    /**
+     * GeoImage ID
+     */
+    geoImageId: string;
+    /**
+     * User ID
+     */
+    userId: string;
+};
+
+export type VerifyImageCopyrightDto = {
+    /**
+     * Image feature vector (hash)
+     */
+    imageHash: string;
+    /**
+     * User ID to verify against
+     */
+    userId: string;
+    /**
+     * Start time of the verification period
+     */
+    from?: string;
+    /**
+     * End time of the verification period
+     */
+    to?: string;
+};
+
+export type CreateGeoImageDto = {
+    ossFileId: string;
+    position: {
+        [key: string]: unknown;
+    };
+    altitude: number;
+    orientation: Array<(number)>;
+    scale?: Array<(number)>;
+    cloudAnchorId: string;
+    metadata?: string;
+};
+
 export type Label = {
     id: string;
     name: string;
@@ -97,26 +139,8 @@ export type CloudAnchor = {
     geoObjects: Array<GeoObject>;
 };
 
-export type UpdateGeoObjectDto = {
-    id: string;
-    data: {
-        [key: string]: unknown;
-    };
-};
-
-export type CreateGeoImageDto = {
-    ossFileId: string;
-    position: {
-        [key: string]: unknown;
-    };
-    altitude: number;
-    orientation: Array<(number)>;
-    scale?: Array<(number)>;
-    cloudAnchorId: string;
-    metadata?: string;
-};
-
 export type GeoImage = {
+    ossFile: File;
     type: string;
     anchor: {
         [key: string]: unknown;
@@ -132,13 +156,19 @@ export type GeoImage = {
     createdAt: string;
     updatedAt: string;
     scene: Scene;
-    ossFile: File;
 };
 
 export type CreateCloudAnchorDto = {
     cloudAnchorId: string;
     position: Array<(number)>;
     altitude: number;
+};
+
+export type UpdateGeoObjectDto = {
+    id: string;
+    data: {
+        [key: string]: unknown;
+    };
 };
 
 export type CreateGeoCommentDto = {
@@ -243,14 +273,6 @@ export type GetHelloError = unknown;
 export type EchoResponse = (string);
 
 export type EchoError = unknown;
-
-export type CreateMessageResponse = (unknown);
-
-export type CreateMessageError = unknown;
-
-export type ValidateMessageResponse = (boolean);
-
-export type ValidateMessageError = unknown;
 
 export type RegisterData = {
     body: CreateUserDto;
@@ -468,68 +490,48 @@ export type GetFileResponse = (unknown);
 
 export type GetFileError = unknown;
 
-export type FindObjectsInBoundsData = {
-    query: {
-        limit?: number;
-        limit?: number;
-        maxLat: number;
-        maxLat: number;
-        maxLon: number;
-        maxLon: number;
-        minLat: number;
-        minLat: number;
-        minLon: number;
-        minLon: number;
-        page?: number;
-        page?: number;
-        type?: string;
-        type?: string;
-    };
+export type CreateMessageResponse = (unknown);
+
+export type CreateMessageError = unknown;
+
+export type ValidateMessageResponse = (boolean);
+
+export type ValidateMessageError = unknown;
+
+export type RegisterImageCopyrightData = {
+    body: RegisterImageCopyrightDto;
 };
 
-export type FindObjectsInBoundsResponse = (unknown);
+export type RegisterImageCopyrightResponse = ({
+    [key: string]: unknown;
+});
 
-export type FindObjectsInBoundsError = unknown;
+export type RegisterImageCopyrightError = unknown;
 
-export type FindGeoObjectsInAreaData = {
+export type VerifyImageCopyrightData = {
+    body: VerifyImageCopyrightDto;
+};
+
+export type VerifyImageCopyrightResponse = ({
+    [key: string]: unknown;
+});
+
+export type VerifyImageCopyrightError = unknown;
+
+export type GetCopyrightInfoData = {
     path: {
-        lat: string;
-        lon: string;
-        radius: string;
+        /**
+         * GeoImage ID
+         */
+        geoImageId: string;
     };
 };
 
-export type FindGeoObjectsInAreaResponse = (Array<GeoObject>);
+export type GetCopyrightInfoResponse = ({
+    [key: string]: unknown;
+});
 
-export type FindGeoObjectsInAreaError = unknown;
-
-export type FindGeoObjectsByAnchorData = {
-    path: {
-        anchorId: string;
-    };
-};
-
-export type FindGeoObjectsByAnchorResponse = (Array<GeoObject>);
-
-export type FindGeoObjectsByAnchorError = unknown;
-
-export type FindOneGeoObjectData = {
-    path: {
-        id: string;
-    };
-};
-
-export type FindOneGeoObjectResponse = (GeoObject);
-
-export type FindOneGeoObjectError = unknown;
-
-export type UpdateGeoObjectData = {
-    body: UpdateGeoObjectDto;
-};
-
-export type UpdateGeoObjectResponse = (GeoObject);
-
-export type UpdateGeoObjectError = unknown;
+export type GetCopyrightInfoError = unknown;
 
 export type CreateGeoImageData = {
     body: CreateGeoImageDto;
@@ -650,6 +652,69 @@ export type UpdateAnchorExpireTimeResponse = ({
 });
 
 export type UpdateAnchorExpireTimeError = unknown;
+
+export type FindObjectsInBoundsData = {
+    query: {
+        limit?: number;
+        limit?: number;
+        maxLat: number;
+        maxLat: number;
+        maxLon: number;
+        maxLon: number;
+        minLat: number;
+        minLat: number;
+        minLon: number;
+        minLon: number;
+        page?: number;
+        page?: number;
+        type?: string;
+        type?: string;
+    };
+};
+
+export type FindObjectsInBoundsResponse = (unknown);
+
+export type FindObjectsInBoundsError = unknown;
+
+export type FindGeoObjectsInAreaData = {
+    path: {
+        lat: string;
+        lon: string;
+        radius: string;
+    };
+};
+
+export type FindGeoObjectsInAreaResponse = (Array<GeoObject>);
+
+export type FindGeoObjectsInAreaError = unknown;
+
+export type FindGeoObjectsByAnchorData = {
+    path: {
+        anchorId: string;
+    };
+};
+
+export type FindGeoObjectsByAnchorResponse = (Array<GeoObject>);
+
+export type FindGeoObjectsByAnchorError = unknown;
+
+export type FindOneGeoObjectData = {
+    path: {
+        id: string;
+    };
+};
+
+export type FindOneGeoObjectResponse = (GeoObject);
+
+export type FindOneGeoObjectError = unknown;
+
+export type UpdateGeoObjectData = {
+    body: UpdateGeoObjectDto;
+};
+
+export type UpdateGeoObjectResponse = (GeoObject);
+
+export type UpdateGeoObjectError = unknown;
 
 export type CreateCommentData = {
     body: CreateGeoCommentDto;

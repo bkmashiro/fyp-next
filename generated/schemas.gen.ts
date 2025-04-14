@@ -152,6 +152,86 @@ export const $UpdateRoleDto = {
     properties: {}
 } as const;
 
+export const $RegisterImageCopyrightDto = {
+    type: 'object',
+    properties: {
+        geoImageId: {
+            type: 'string',
+            description: 'GeoImage ID',
+            example: '123e4567-e89b-12d3-a456-426614174000'
+        },
+        userId: {
+            type: 'string',
+            description: 'User ID',
+            example: 'user123'
+        }
+    },
+    required: ['geoImageId', 'userId']
+} as const;
+
+export const $VerifyImageCopyrightDto = {
+    type: 'object',
+    properties: {
+        imageHash: {
+            type: 'string',
+            description: 'Image feature vector (hash)',
+            example: 'a1b2c3d4e5f6g7h8i9j0'
+        },
+        userId: {
+            type: 'string',
+            description: 'User ID to verify against',
+            example: 'user123456'
+        },
+        from: {
+            format: 'date-time',
+            type: 'string',
+            description: 'Start time of the verification period',
+            example: '2024-01-01T00:00:00Z'
+        },
+        to: {
+            format: 'date-time',
+            type: 'string',
+            description: 'End time of the verification period',
+            example: '2024-12-31T23:59:59Z'
+        }
+    },
+    required: ['imageHash', 'userId']
+} as const;
+
+export const $CreateGeoImageDto = {
+    type: 'object',
+    properties: {
+        ossFileId: {
+            type: 'string'
+        },
+        position: {
+            type: 'object'
+        },
+        altitude: {
+            type: 'number'
+        },
+        orientation: {
+            type: 'array',
+            items: {
+                type: 'number'
+            }
+        },
+        scale: {
+            type: 'array',
+            items: {
+                type: 'number'
+            }
+        },
+        cloudAnchorId: {
+            type: 'string'
+        },
+        metadata: {
+            type: 'string'
+        }
+    },
+    required: ['ossFileId', 'position', 'altitude', 'orientation', 'cloudAnchorId']
+} as const;
+
 export const $Label = {
     type: 'object',
     properties: {
@@ -279,56 +359,12 @@ export const $CloudAnchor = {
     required: ['id', 'cloudAnchorId', 'anchor', 'altitude', 'geoObjects']
 } as const;
 
-export const $UpdateGeoObjectDto = {
-    type: 'object',
-    properties: {
-        id: {
-            type: 'string'
-        },
-        data: {
-            type: 'object'
-        }
-    },
-    required: ['id', 'data']
-} as const;
-
-export const $CreateGeoImageDto = {
-    type: 'object',
-    properties: {
-        ossFileId: {
-            type: 'string'
-        },
-        position: {
-            type: 'object'
-        },
-        altitude: {
-            type: 'number'
-        },
-        orientation: {
-            type: 'array',
-            items: {
-                type: 'number'
-            }
-        },
-        scale: {
-            type: 'array',
-            items: {
-                type: 'number'
-            }
-        },
-        cloudAnchorId: {
-            type: 'string'
-        },
-        metadata: {
-            type: 'string'
-        }
-    },
-    required: ['ossFileId', 'position', 'altitude', 'orientation', 'cloudAnchorId']
-} as const;
-
 export const $GeoImage = {
     type: 'object',
     properties: {
+        ossFile: {
+            '$ref': '#/components/schemas/File'
+        },
         type: {
             type: 'string'
         },
@@ -367,12 +403,9 @@ export const $GeoImage = {
         },
         scene: {
             '$ref': '#/components/schemas/Scene'
-        },
-        ossFile: {
-            '$ref': '#/components/schemas/File'
         }
     },
-    required: ['type', 'anchor', 'anchor_latitude', 'metadata', 'cloudAnchor', 'relPosition', 'relAltitude', 'relOrientation', 'createdAt', 'updatedAt', 'scene', 'ossFile']
+    required: ['ossFile', 'type', 'anchor', 'anchor_latitude', 'metadata', 'cloudAnchor', 'relPosition', 'relAltitude', 'relOrientation', 'createdAt', 'updatedAt', 'scene']
 } as const;
 
 export const $CreateCloudAnchorDto = {
@@ -392,6 +425,19 @@ export const $CreateCloudAnchorDto = {
         }
     },
     required: ['cloudAnchorId', 'position', 'altitude']
+} as const;
+
+export const $UpdateGeoObjectDto = {
+    type: 'object',
+    properties: {
+        id: {
+            type: 'string'
+        },
+        data: {
+            type: 'object'
+        }
+    },
+    required: ['id', 'data']
 } as const;
 
 export const $CreateGeoCommentDto = {
