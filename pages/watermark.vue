@@ -163,7 +163,7 @@ const handleCreateWatermark = async () => {
         watermark: createForm.value.watermark,
       }
     });
-    if (watermarkResponse && watermarkResponse > 0) {
+    if (watermarkResponse && (watermarkResponse as any).watermarkLength > 0) {
       alert('Watermark added successfully!');
       // Reset form
       createForm.value = {

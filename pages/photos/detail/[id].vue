@@ -207,7 +207,9 @@
                   <div class="grid grid-cols-2 gap-4">
                     <div>
                       <p class="text-sm text-gray-600">Status</p>
-                      <p>{{ copyrightInfo.details.status }}</p>
+                      <UBadge :color="copyrightInfo.details.status === 'registered' ? 'green' : 'red'">
+                        {{ copyrightInfo.details.status }}
+                      </UBadge>
                     </div>
                     <div>
                       <p class="text-sm text-gray-600">Transaction Hash</p>
@@ -219,7 +221,7 @@
                     </div>
                     <div>
                       <p class="text-sm text-gray-600">Image Hash</p>
-                      <p class="truncate">{{ copyrightInfo.details.imageHash }}</p>
+                      <p class="truncate">{{ formatBinaryHash(copyrightInfo.details.imageHash) }}</p>
                     </div>
                   </div>
                   <div class="mt-4">
@@ -235,24 +237,12 @@
                       </div>
                       <div>
                         <p class="text-sm text-gray-600">Message</p>
-                        <p>{{ copyrightInfo.details.blockchainInfo.message }}</p>
+                        <p>{{ copyrightInfo.details.blockchainInfo.message.slice(0, 5) }}...{{
+                          copyrightInfo.details.blockchainInfo.message.slice(-5) }}</p>
                       </div>
                       <div>
                         <p class="text-sm text-gray-600">Timestamp</p>
                         <p>{{ formatDate(copyrightInfo.details.blockchainInfo.timestamp) }}</p>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="mt-4">
-                    <p class="text-sm text-gray-600">Timestamps</p>
-                    <div class="grid grid-cols-2 gap-4 mt-2">
-                      <div>
-                        <p class="text-sm text-gray-600">Created At</p>
-                        <p>{{ formatDate(copyrightInfo.details.createdAt) }}</p>
-                      </div>
-                      <div>
-                        <p class="text-sm text-gray-600">Updated At</p>
-                        <p>{{ formatDate(copyrightInfo.details.updatedAt) }}</p>
                       </div>
                     </div>
                   </div>
@@ -261,13 +251,17 @@
                   <p class="text-gray-500">{{ copyrightInfo?.message || 'No copyright information available' }}</p>
                 </div>
                 <div class="flex space-x-4">
-                  <UButton 
-                    v-if="!copyrightInfo?.details"
-                    type="primary" 
-                    @click="registerCopyright" 
-                    :loading="isRegistering"
-                  >
+                  <UButton v-if="!copyrightInfo?.details"
+                           type="primary"
+                           @click="registerCopyright"
+                           :loading="isRegistering">
                     Register Copyright
+                  </UButton>
+                  <UButton v-if="copyrightInfo?.status === 'SUCCESS'"
+                           type="secondary"
+                           @click="createWatermark"
+                           :loading="isCreatingWatermark">
+                    Create Watermark
                   </UButton>
                 </div>
               </div>
@@ -296,6 +290,7 @@ const photo = ref<any>(null)
 const parsedMetadata = ref<any>(null)
 const copyrightInfo = ref<any>(null)
 const isRegistering = ref(false)
+const isCreatingWatermark = ref(false)
 const userStore = useUserStore()
 
 const formatFileSize = (bytes) => {
@@ -308,6 +303,11 @@ const formatFileSize = (bytes) => {
 
 const formatDate = (dateString) => {
   return new Date(dateString).toLocaleString()
+}
+
+const formatBinaryHash = (hash: string) => {
+  // 将二进制字符串转换为十六进制
+  return parseInt(hash, 2).toString(16).toUpperCase()
 }
 
 const fetchPhotoDetails = async (id) => {
@@ -355,7 +355,7 @@ const registerCopyright = async () => {
         userId: userStore.user!.id
       }
     })
-    
+
     await fetchCopyrightInfo(photo.value.id)
     useToast().add({
       title: 'Success',
@@ -373,6 +373,50 @@ const registerCopyright = async () => {
     })
   } finally {
     isRegistering.value = false
+  }
+}
+
+const createWatermark = async () => {
+  if (!photo.value || !copyrightInfo.value) return
+
+  isCreatingWatermark.value = true
+  try {
+    // 获取版权信息的消息前8位作为水印内容
+    const watermarkContent = copyrightInfo.value.details.blockchainInfo.message.slice(0, 8)
+
+    // 创建水印
+    const { data: watermarkResponse } = await WatermarkService.createWatermark({
+      body: {
+        fileKey: photo.value.ossFile.key,
+        watermark: watermarkContent,
+      }
+    })
+
+    if (watermarkResponse && (watermarkResponse as any).watermarkLength > 0) {
+      // 下载带水印的图片
+      const { data: watermarkFile } = await FileService.getFile({ path: { key: (watermarkResponse as any).watermarkFile } })
+      console.log('watermarkFile', watermarkFile)
+
+
+      useToast().add({
+        title: 'Success',
+        description: 'Watermark created and image downloaded successfully',
+        color: 'green',
+        timeout: 3000
+      })
+    } else {
+      throw new Error('Failed to create watermark')
+    }
+  } catch (error) {
+    console.error('Error:', error)
+    useToast().add({
+      title: 'Error',
+      description: error instanceof Error ? error.message : 'Failed to create watermark',
+      color: 'red',
+      timeout: 3000
+    })
+  } finally {
+    isCreatingWatermark.value = false
   }
 }
 

@@ -111,6 +111,11 @@ const navigationLinks = [
     label: 'Scenes',
     icon: 'i-heroicons-camera',
     to: '/scene'
+  },
+  {
+    label: 'Copyright',
+    icon: 'i-heroicons-document-text',
+    to: '/photos/verify'
   }
 ]
 </script>

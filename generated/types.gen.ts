@@ -512,9 +512,7 @@ export type VerifyImageCopyrightData = {
     body: VerifyImageCopyrightDto;
 };
 
-export type VerifyImageCopyrightResponse = ({
-    [key: string]: unknown;
-});
+export type VerifyImageCopyrightResponse = (unknown);
 
 export type VerifyImageCopyrightError = unknown;
 
@@ -532,6 +530,12 @@ export type GetCopyrightInfoResponse = ({
 });
 
 export type GetCopyrightInfoError = unknown;
+
+export type CalculateImageHashResponse = ({
+    [key: string]: unknown;
+});
+
+export type CalculateImageHashError = unknown;
 
 export type CreateGeoImageData = {
     body: CreateGeoImageDto;
@@ -932,7 +936,7 @@ export type CreateWatermarkData = {
     body: CreateWatermarkDto;
 };
 
-export type CreateWatermarkResponse = (number);
+export type CreateWatermarkResponse = (unknown);
 
 export type CreateWatermarkError = unknown;
 
