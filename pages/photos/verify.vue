@@ -2,6 +2,18 @@
   <div class="p-6 max-w-3xl mx-auto">
     <h1 class="text-3xl font-bold mb-6">Verify Image Copyright</h1>
     
+    <div class="mb-6 p-4 bg-gray-50 rounded-lg">
+      <p class="text-gray-700 mb-2">
+        The <span class="font-medium">Verify Copyright</span> feature uses perceptual hashing to match your uploaded image against our database. It also queries the blockchain to verify if the image belongs to a specific user ID.
+        <span class="block mt-2 text-sm text-gray-600">
+          Note: This is a one-way verification process. You cannot query an author's name by image - you can only verify if a specific image-user ID pair exists. Since blockchain data is hashed, we cannot query the original plaintext data, only verify the existence of records.
+        </span>
+      </p>
+      <p class="text-gray-700">
+        The <span class="font-medium">Extract Watermark</span> feature examines the image for pre-embedded copyright information. If found, it extracts the hidden data and attempts to locate the original image. Note that this process may fail if the image has been significantly damaged or altered.
+      </p>
+    </div>
+
     <UCard class="mb-6">
       <div class="space-y-6">
         <!-- Image Upload Section -->
@@ -103,7 +115,9 @@
                         <div class="grid grid-cols-2 gap-2">
                           <div>
                             <p class="text-sm text-gray-600">GeoImage ID</p>
-                            <p class="font-mono text-sm">{{ match.geoImage.id }}</p>
+                            <NuxtLink :to="'/photos/detail/' + match.geoImage.id" class="font-mono text-sm text-primary-600 hover:text-primary-800">
+                              {{ match.geoImage.id }}
+                            </NuxtLink>
                           </div>
                           <div>
                             <p class="text-sm text-gray-600">User ID</p>
@@ -142,7 +156,9 @@
                         <div class="grid grid-cols-2 gap-2">
                           <div>
                             <p class="text-sm text-gray-600">GeoImage ID</p>
-                            <p class="font-mono text-sm">{{ match.geoImage.id }}</p>
+                            <NuxtLink :to="'/photos/detail/' + match.geoImage.id" class="font-mono text-sm text-primary-600 hover:text-primary-800">
+                              {{ match.geoImage.id }}
+                            </NuxtLink>
                           </div>
                           <div>
                             <p class="text-sm text-gray-600">User ID</p>
@@ -191,6 +207,49 @@
               <p class="text-gray-500 text-sm mt-2 font-mono break-all">{{ extractedWatermark }}</p>
             </div>
           </div>
+
+          <!-- Matched GeoImages -->
+          <div v-if="isWatermarkValid && matchedGeoImages.length > 0" class="mt-4">
+            <h4 class="font-medium mb-2">Matched GeoImages</h4>
+            <div class="space-y-2">
+              <div v-for="geoImage in matchedGeoImages" :key="geoImage.id" class="border rounded p-2">
+                <div class="grid grid-cols-2 gap-2">
+                  <div>
+                    <p class="text-sm text-gray-600">GeoImage ID</p>
+                    <NuxtLink :to="'/photos/detail/' + geoImage.id" class="font-mono text-sm text-primary-600 hover:text-primary-800">
+                      {{ geoImage.id }}
+                    </NuxtLink>
+                  </div>
+                  <div>
+                    <p class="text-sm text-gray-600">Position</p>
+                    <p class="text-sm">{{ geoImage.position.coordinates.join(', ') }}</p>
+                  </div>
+                  <div>
+                    <p class="text-sm text-gray-600">Altitude</p>
+                    <p class="text-sm">{{ geoImage.altitude.toFixed(2) }}m</p>
+                  </div>
+                  <div>
+                    <p class="text-sm text-gray-600">Created At</p>
+                    <p class="text-sm">{{ formatDate(geoImage.createdAt) }}</p>
+                  </div>
+                  <div class="col-span-2">
+                    <p class="text-sm text-gray-600">Metadata</p>
+                    <div class="text-sm space-y-1">
+                      <p v-if="geoImage.metadata">
+                        <span class="font-medium">Horizontal Accuracy:</span> {{ JSON.parse(geoImage.metadata).HorizontalAccuracy.toFixed(2) }}m
+                      </p>
+                      <p v-if="geoImage.metadata">
+                        <span class="font-medium">Vertical Accuracy:</span> {{ JSON.parse(geoImage.metadata).VerticalAccuracy.toFixed(2) }}m
+                      </p>
+                      <p v-if="geoImage.metadata">
+                        <span class="font-medium">Orientation Yaw Accuracy:</span> {{ JSON.parse(geoImage.metadata).OrientationYawAccuracy.toFixed(2) }}°
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </UCard>
@@ -210,6 +269,7 @@ const isVerifying = ref(false)
 const isExtracting = ref(false)
 const verificationResult = ref<any>(null)
 const extractedWatermark = ref<string | null>(null)
+const matchedGeoImages = ref<any[]>([])
 const imageHash = ref<string | null>(null)
 const isWatermarkValid = computed(() => {
   if (!extractedWatermark.value) return false
@@ -299,6 +359,7 @@ const extractWatermark = async () => {
 
   try {
     isExtracting.value = true
+    matchedGeoImages.value = [] // 重置匹配结果
 
     // Upload file first
     const formData = new FormData();
@@ -316,12 +377,35 @@ const extractWatermark = async () => {
       body: {
         fileKey: key,
         watermarkLength: 63,
-        passwordImg: 0,
-        passwordWm: 0
+        passwordImg: 1,
+        passwordWm: 1
       }
     });
     if (extractResponse) {
-      extractedWatermark.value = extractResponse;
+      extractedWatermark.value = (extractResponse as any).text;
+      
+      // 如果成功提取水印，查找对应的GeoImage
+      if (isWatermarkValid.value && extractedWatermark.value) {
+        try {
+          const { data: response } = await ConsensusService.findGeoImagesByMessagePrefix({
+            path: {
+              prefix: extractedWatermark.value
+            }
+          });
+          const typedResponse = response as { data: any[] };
+          if (typedResponse?.data) {
+            matchedGeoImages.value = typedResponse.data;
+          }
+        } catch (error) {
+          console.error('Failed to find GeoImages:', error);
+          useToast().add({
+            title: 'Error',
+            description: 'Failed to find matching GeoImages',
+            color: 'red',
+            timeout: 3000
+          });
+        }
+      }
     } else {
       throw new Error('Failed to extract watermark');
     }

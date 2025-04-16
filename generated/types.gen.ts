@@ -257,6 +257,7 @@ export type UpdateLabelDto = {
 export type CreateWatermarkDto = {
     fileKey: string;
     watermark: string;
+    length?: number;
 };
 
 export type ExtractWatermarkDto = {
@@ -536,6 +537,19 @@ export type CalculateImageHashResponse = ({
 });
 
 export type CalculateImageHashError = unknown;
+
+export type FindGeoImagesByMessagePrefixData = {
+    path: {
+        /**
+         * Message prefix to search for
+         */
+        prefix: string;
+    };
+};
+
+export type FindGeoImagesByMessagePrefixResponse = (unknown);
+
+export type FindGeoImagesByMessagePrefixError = unknown;
 
 export type CreateGeoImageData = {
     body: CreateGeoImageDto;
@@ -944,7 +958,7 @@ export type ExtractWatermarkData = {
     body: ExtractWatermarkDto;
 };
 
-export type ExtractWatermarkResponse = (string);
+export type ExtractWatermarkResponse = (unknown);
 
 export type ExtractWatermarkError = unknown;
 

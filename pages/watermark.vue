@@ -208,7 +208,7 @@ const handleExtractWatermark = async () => {
       }
     });
     if (extractResponse) {
-      extractedWatermark.value = extractResponse;
+      extractedWatermark.value = (extractResponse as any).text;
     } else {
       throw new Error('Failed to extract watermark');
     }

@@ -666,6 +666,9 @@ export const $CreateWatermarkDto = {
         },
         watermark: {
             type: 'string'
+        },
+        length: {
+            type: 'number'
         }
     },
     required: ['fileKey', 'watermark']

@@ -395,8 +395,17 @@ const createWatermark = async () => {
     if (watermarkResponse && (watermarkResponse as any).watermarkLength > 0) {
       // 下载带水印的图片
       const { data: watermarkFile } = await FileService.getFile({ path: { key: (watermarkResponse as any).watermarkFile } })
-      console.log('watermarkFile', watermarkFile)
-
+      
+      // 创建下载链接
+      const blob = new Blob([watermarkFile as BlobPart], { type: 'image/jpeg' })
+      const url = window.URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `watermarked_${photo.value.ossFile.originalName}`
+      document.body.appendChild(a)
+      a.click()
+      window.URL.revokeObjectURL(url)
+      document.body.removeChild(a)
 
       useToast().add({
         title: 'Success',
