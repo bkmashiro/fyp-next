@@ -14,15 +14,19 @@
  * ----------	---	---------------------------------------------------------    *
  */
 
-
-
 import { client } from '../generated/services.gen'
 import axios from 'axios'
+
 export default defineNuxtPlugin((nuxtApp) => {
   const { getToken, clearToken, hasToken } = useAuth()
 
+  // 获取 API 基础 URL，生产环境使用环境变量，开发环境使用 /api
+  const apiBaseUrl = process.env.NODE_ENV === 'production' 
+    ? (process.env.API_BASE_URL || 'http://localhost:3001')
+    : '/api'
+
   client.setConfig({
-    baseURL: '/api',
+    baseURL: apiBaseUrl,
   })
 
   client.instance.interceptors.request.use(
@@ -66,7 +70,7 @@ export default defineNuxtPlugin((nuxtApp) => {
   )
 
   const http = axios.create({
-    baseURL: '/api',
+    baseURL: apiBaseUrl,
   })
 
   http.interceptors.request.use(

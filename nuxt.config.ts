@@ -43,4 +43,17 @@ export default defineNuxtConfig({
     viewTransition: true,
   },
 
+  // UI Theme Configuration
+  colorMode: {
+    preference: 'light',
+    fallback: 'light',
+    classSuffix: ''
+  },
+
+  // Runtime Config
+  runtimeConfig: {
+    public: {
+      apiBaseUrl: process.env.API_BASE_URL || 'http://localhost:3001'
+    }
+  }
 })
