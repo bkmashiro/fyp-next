@@ -22,7 +22,7 @@ export default defineNuxtPlugin((nuxtApp) => {
 
   // 获取 API 基础 URL，生产环境使用环境变量，开发环境使用 /api
   const apiBaseUrl = process.env.NODE_ENV === 'production' 
-    ? (process.env.API_BASE_URL || 'http://localhost:3001')
+    ? (process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3001')
     : '/api'
 
   client.setConfig({
