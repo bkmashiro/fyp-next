@@ -116,6 +116,11 @@ const navigationLinks = [
     label: 'Copyright',
     icon: 'i-heroicons-document-text',
     to: '/photos/verify'
+  },
+  {
+    label: 'ZK Verification',
+    icon: 'i-heroicons-shield-check',
+    to: '/zk-verification'
   }
 ]
 </script>

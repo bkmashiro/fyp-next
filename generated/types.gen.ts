@@ -267,6 +267,16 @@ export type ExtractWatermarkDto = {
     watermarkLength: number;
 };
 
+export type CreateArtworkProofDto = {
+    artworkHash: string;
+    signature: string;
+};
+
+export type VerifyArtworkOwnershipDto = {
+    artworkHash: string;
+    ownerAddress: string;
+};
+
 export type GetHelloResponse = (string);
 
 export type GetHelloError = unknown;
@@ -978,3 +988,29 @@ export type GetStatisticsResponse = ({
 });
 
 export type GetStatisticsError = unknown;
+
+export type GenerateKeccak256HashResponse = (unknown);
+
+export type GenerateKeccak256HashError = unknown;
+
+export type GenerateKeyPairResponse = (unknown);
+
+export type GenerateKeyPairError = unknown;
+
+export type CreateArtworkProofData = {
+    body: CreateArtworkProofDto;
+};
+
+export type CreateArtworkProofResponse = (unknown);
+
+export type CreateArtworkProofError = unknown;
+
+export type VerifyArtworkOwnershipData = {
+    body: VerifyArtworkOwnershipDto;
+};
+
+export type VerifyArtworkOwnershipResponse = ({
+    [key: string]: unknown;
+});
+
+export type VerifyArtworkOwnershipError = unknown;

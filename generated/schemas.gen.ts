@@ -692,3 +692,29 @@ export const $ExtractWatermarkDto = {
     },
     required: ['fileKey', 'passwordImg', 'passwordWm', 'watermarkLength']
 } as const;
+
+export const $CreateArtworkProofDto = {
+    type: 'object',
+    properties: {
+        artworkHash: {
+            type: 'string'
+        },
+        signature: {
+            type: 'string'
+        }
+    },
+    required: ['artworkHash', 'signature']
+} as const;
+
+export const $VerifyArtworkOwnershipDto = {
+    type: 'object',
+    properties: {
+        artworkHash: {
+            type: 'string'
+        },
+        ownerAddress: {
+            type: 'string'
+        }
+    },
+    required: ['artworkHash', 'ownerAddress']
+} as const;
