@@ -17,15 +17,15 @@
           <div class="grid grid-cols-3 gap-4 mt-6">
             <div class="text-center p-4 bg-gray-50 rounded-lg">
               <p class="text-2xl font-bold text-primary-500">{{ stats.createdScenes }}</p>
-              <p class="text-sm text-gray-600">创建的场景</p>
+              <p class="text-sm text-gray-600">Created Scenes</p>
             </div>
             <div class="text-center p-4 bg-gray-50 rounded-lg">
               <p class="text-2xl font-bold text-primary-500">{{ stats.managedScenes }}</p>
-              <p class="text-sm text-gray-600">管理的场景</p>
+              <p class="text-sm text-gray-600">Managed Scenes</p>
             </div>
             <div class="text-center p-4 bg-gray-50 rounded-lg">
               <p class="text-2xl font-bold text-primary-500">{{ stats.totalScenes }}</p>
-              <p class="text-sm text-gray-600">总场景数</p>
+              <p class="text-sm text-gray-600">Total Scenes</p>
             </div>
           </div>
         </div>
@@ -35,13 +35,13 @@
       <UCard class="mb-6">
         <div class="p-4">
           <div class="flex justify-between items-center mb-4">
-            <h2 class="text-xl font-bold">我的场景</h2>
+            <h2 class="text-xl font-bold">My Scenes</h2>
             <UButton
               icon="i-heroicons-plus"
               color="primary"
               to="/scene"
             >
-              创建场景
+              Create Scene
             </UButton>
           </div>
 
@@ -52,13 +52,13 @@
                   <div class="flex items-center gap-2 mb-2">
                     <UBadge color="blue">{{ scene.name }}</UBadge>
                     <span class="text-sm text-gray-600">
-                      创建于: {{ formatDate(scene.createdAt) }}
+                      Created: {{ formatDate(scene.createdAt) }}
                     </span>
                   </div>
-                  <p class="text-gray-700 mb-2">{{ scene.description || '无描述' }}</p>
+                  <p class="text-gray-700 mb-2">{{ scene.description || 'No description' }}</p>
                   <div class="grid grid-cols-2 gap-4 text-sm">
                     <div>
-                      <p class="text-gray-600">位置</p>
+                      <p class="text-gray-600">Location</p>
                       <UButton
                         variant="link"
                         color="blue"
@@ -70,7 +70,7 @@
                       </UButton>
                     </div>
                     <div>
-                      <p class="text-gray-600">标签</p>
+                      <p class="text-gray-600">Tags</p>
                       <div class="flex flex-wrap gap-1">
                         <UBadge
                           v-for="label in scene.labels"
@@ -91,7 +91,7 @@
                     size="sm"
                     :to="`/scene/${scene.id}`"
                   >
-                    查看详情
+                    View Details
                   </UButton>
                 </div>
               </div>
@@ -103,7 +103,7 @@
       <!-- 我管理的场景 -->
       <UCard>
         <div class="p-4">
-          <h2 class="text-xl font-bold mb-4">我管理的场景</h2>
+          <h2 class="text-xl font-bold mb-4">Managed Scenes</h2>
           
           <div class="space-y-4">
             <div v-for="scene in managedScenes" :key="scene.id" class="border rounded-lg p-4">
@@ -112,13 +112,13 @@
                   <div class="flex items-center gap-2 mb-2">
                     <UBadge color="green">{{ scene.name }}</UBadge>
                     <span class="text-sm text-gray-600">
-                      创建于: {{ formatDate(scene.createdAt) }}
+                      Created: {{ formatDate(scene.createdAt) }}
                     </span>
                   </div>
-                  <p class="text-gray-700 mb-2">{{ scene.description || '无描述' }}</p>
+                  <p class="text-gray-700 mb-2">{{ scene.description || 'No description' }}</p>
                   <div class="grid grid-cols-2 gap-4 text-sm">
                     <div>
-                      <p class="text-gray-600">位置</p>
+                      <p class="text-gray-600">Location</p>
                       <UButton
                         variant="link"
                         color="blue"
@@ -130,7 +130,7 @@
                       </UButton>
                     </div>
                     <div>
-                      <p class="text-gray-600">标签</p>
+                      <p class="text-gray-600">Tags</p>
                       <div class="flex flex-wrap gap-1">
                         <UBadge
                           v-for="label in scene.labels"
@@ -151,7 +151,7 @@
                     size="sm"
                     :to="`/scene/${scene.id}`"
                   >
-                    查看详情
+                    View Details
                   </UButton>
                 </div>
               </div>
@@ -241,7 +241,7 @@ onMounted(async () => {
   // TODO: 获取用户信息
   user.value = {
     id: 1,
-    username: '测试用户',
+    username: 'Test User',
     email: 'test@example.com'
   }
   await fetchUserScenes()
