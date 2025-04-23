@@ -394,10 +394,13 @@ const createWatermark = async () => {
 
     if (watermarkResponse && (watermarkResponse as any).watermarkLength > 0) {
       // 下载带水印的图片
-      const { data: watermarkFile } = await FileService.getFile({ path: { key: (watermarkResponse as any).watermarkFile } })
+      const { data: watermarkFile } = await FileService.getFile({ 
+        path: { key: (watermarkResponse as any).watermarkFile },
+        responseType: 'blob'
+      })
       
       // 创建下载链接
-      const blob = new Blob([watermarkFile as BlobPart], { type: 'image/jpeg' })
+      const blob = new Blob([watermarkFile], { type: 'image/jpeg' })
       const url = window.URL.createObjectURL(blob)
       const a = document.createElement('a')
       a.href = url
