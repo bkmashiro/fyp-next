@@ -4,6 +4,37 @@
       Zero-Knowledge Copyright Verification
     </h1>
 
+    <!-- Description Section -->
+    <div class="mb-8 p-6 border rounded-lg shadow-lg bg-white">
+      <div class="prose max-w-none">
+        <h2 class="text-xl font-semibold mb-4 text-gray-800">About This System</h2>
+        <div class="space-y-4">
+          <div class="grid grid-cols-[auto_1fr] gap-3">
+            <svg class="w-8 h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+            </svg>
+            <span class="text-gray-600">
+              <strong>Privacy-First Approach:</strong> Private and public keys are never uploaded to the system, ensuring complete anonymity of the copyright holder.
+            </span>
+            
+            <svg class="w-8 h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+            </svg>
+            <span class="text-gray-600">
+              <strong>Selective Disclosure:</strong> Verification can only check if a specific artwork belongs to a particular address, without revealing any additional information.
+            </span>
+            
+            <svg class="w-8 h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+            </svg>
+            <span class="text-gray-600">
+              <strong>Irreversible Protection:</strong> Blockchain records cannot be used to reverse-engineer the artwork or identify the owner's address.
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Key Pair Management -->
     <div class="mb-8 p-6 border rounded-lg shadow-lg bg-white">
       <h2 class="text-2xl font-semibold mb-4 text-gray-800">Key Pair Management</h2>
