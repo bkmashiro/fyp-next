@@ -90,7 +90,7 @@
         <UCard>
           <div class="p-4">
             <div class="space-y-4">
-              <div v-for="obj in item.content"
+              <div v-for="obj in item.content.value"
                    :key="obj.id"
                    class="border rounded-lg p-4">
                 <div class="flex justify-between items-start">
@@ -145,12 +145,30 @@ import GeoMap from '~/components/GeoMap.vue'
 
 
 onMounted(async () => {
-  const statistics = (await StatisticsService.getStatistics()).data!
-  stats.value = {
-    anchors: statistics.cloudAnchorsCount ?? 0,
-    images: statistics.geoImagesCount ?? 0,
-    comments: statistics.geoCommentsCount ?? 0,
-    recommended: 0 // 暂时保持为0，等待后续实现
+  try {
+    const statistics = (await StatisticsService.getStatistics()).data!
+    stats.value = {
+      anchors: statistics.cloudAnchorsCount ?? 0,
+      images: statistics.geoImagesCount ?? 0,
+      comments: statistics.geoCommentsCount ?? 0,
+      recommended: 0
+    }
+
+    const response = ((await GeoObjectService.findAll({
+      data: {
+        page: 1,
+        limit: 100
+      }
+    })).data as any)?.data! as unknown as GeoObject[]
+
+    console.log('API Response:', response)
+
+    myObjects.value = response as unknown as GeoObject[]
+    console.log('Processed Objects:', myObjects.value)
+
+  } catch (error) {
+    console.error('Error fetching data:', error)
+    // myObjects.value = []
   }
 })
 
@@ -219,12 +237,12 @@ const tabs = computed(() => [
   {
     key: 'my',
     label: 'My Content',
-    content: myObjects.value
+    content: computed(() => myObjects.value)
   },
   {
     key: 'recommended',
     label: 'Recommended',
-    content: recommendedObjects.value
+    content: computed(() => recommendedObjects.value)
   }
 ] as any)
 
