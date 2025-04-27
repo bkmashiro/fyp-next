@@ -16,12 +16,99 @@
         <div class="p-4">
           <h2 class="text-2xl font-bold mb-4">Image Details</h2>
 
+          <!-- Copyright Information -->
+          <UCard class="mb-6"
+                 :ui="{ body: { padding: isCopyrightOpen ? 'p-4' : 'p-0' } }">
+            <template #header>
+              <div class="flex justify-between items-center">
+                <h3 class="text-lg font-semibold">Copyright Information</h3>
+                <UButton :icon="isCopyrightOpen ? 'i-heroicons-chevron-up' : 'i-heroicons-chevron-down'"
+                         color="gray"
+                         variant="ghost"
+                         @click="isCopyrightOpen = !isCopyrightOpen" />
+              </div>
+            </template>
+            <div v-if="isCopyrightOpen"
+                 class="space-y-4">
+              <div v-if="copyrightInfo?.status === 'SUCCESS'">
+                <div class="grid grid-cols-2 gap-4">
+                  <div>
+                    <p class="text-sm text-gray-600">Status</p>
+                    <UBadge :color="copyrightInfo.details.status === 'registered' ? 'green' : 'red'">
+                      {{ copyrightInfo.details.status }}
+                    </UBadge>
+                  </div>
+                  <div>
+                    <p class="text-sm text-gray-600">Transaction Hash</p>
+                    <p class="truncate">{{ copyrightInfo.details.transactionHash }}</p>
+                  </div>
+                  <div>
+                    <p class="text-sm text-gray-600">User ID</p>
+                    <p>{{ copyrightInfo.details.userId }}</p>
+                  </div>
+                  <div>
+                    <p class="text-sm text-gray-600">Image Hash</p>
+                    <p class="truncate">{{ formatBinaryHash(copyrightInfo.details.imageHash) }}</p>
+                  </div>
+                </div>
+                <div class="mt-4">
+                  <p class="text-sm text-gray-600">Blockchain Info</p>
+                  <div class="grid grid-cols-2 gap-4 mt-2">
+                    <div>
+                      <p class="text-sm text-gray-600">Topic ID</p>
+                      <p class="truncate">{{ copyrightInfo.details.blockchainInfo.topicId }}</p>
+                    </div>
+                    <div>
+                      <p class="text-sm text-gray-600">Sequence</p>
+                      <p>{{ copyrightInfo.details.blockchainInfo.sequenceNumber }}</p>
+                    </div>
+                    <div>
+                      <p class="text-sm text-gray-600">Message</p>
+                      <p>{{ copyrightInfo.details.blockchainInfo.message.slice(0, 5) }}...{{
+                        copyrightInfo.details.blockchainInfo.message.slice(-5) }}</p>
+                    </div>
+                    <div>
+                      <p class="text-sm text-gray-600">Timestamp</p>
+                      <p>{{ formatDate(copyrightInfo.details.blockchainInfo.timestamp) }}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div v-else>
+                <p class="text-gray-500">{{ copyrightInfo?.message || 'No copyright information available' }}</p>
+              </div>
+              <div class="flex space-x-4">
+                <UButton v-if="!copyrightInfo?.details"
+                         type="primary"
+                         @click="registerCopyright"
+                         :loading="isRegistering">
+                  Register Copyright
+                </UButton>
+                <UButton v-if="copyrightInfo?.status === 'SUCCESS'"
+                         type="secondary"
+                         @click="createWatermark"
+                         :loading="isCreatingWatermark">
+                  Create Watermark
+                </UButton>
+              </div>
+            </div>
+          </UCard>
+
           <!-- Basic Info -->
           <div class="space-y-6">
             <!-- File Information -->
-            <div class="border rounded-lg p-4">
-              <h3 class="text-lg font-semibold mb-3">File Information</h3>
-              <div class="grid grid-cols-2 gap-4">
+            <UCard :ui="{ body: { padding: isFileInfoOpen ? 'p-4' : 'p-0' } }">
+              <template #header>
+                <div class="flex justify-between items-center">
+                  <h3 class="text-lg font-semibold">File Information</h3>
+                  <UButton :icon="isFileInfoOpen ? 'i-heroicons-chevron-up' : 'i-heroicons-chevron-down'"
+                           color="gray"
+                           variant="ghost"
+                           @click="isFileInfoOpen = !isFileInfoOpen" />
+                </div>
+              </template>
+              <div v-if="isFileInfoOpen"
+                   class="grid grid-cols-2 gap-4">
                 <div>
                   <p class="text-sm text-gray-600">Original Name</p>
                   <p>{{ photo.ossFile.originalName }}</p>
@@ -39,12 +126,21 @@
                   <p>{{ photo.ossFile.key }}</p>
                 </div>
               </div>
-            </div>
+            </UCard>
 
             <!-- Timestamps -->
-            <div class="border rounded-lg p-4">
-              <h3 class="text-lg font-semibold mb-3">Timestamps</h3>
-              <div class="grid grid-cols-2 gap-4">
+            <UCard :ui="{ body: { padding: isTimestampsOpen ? 'p-4' : 'p-0' } }">
+              <template #header>
+                <div class="flex justify-between items-center">
+                  <h3 class="text-lg font-semibold">Timestamps</h3>
+                  <UButton :icon="isTimestampsOpen ? 'i-heroicons-chevron-up' : 'i-heroicons-chevron-down'"
+                           color="gray"
+                           variant="ghost"
+                           @click="isTimestampsOpen = !isTimestampsOpen" />
+                </div>
+              </template>
+              <div v-if="isTimestampsOpen"
+                   class="grid grid-cols-2 gap-4">
                 <div>
                   <p class="text-sm text-gray-600">Created</p>
                   <p>{{ formatDate(photo.createdAt) }}</p>
@@ -54,12 +150,21 @@
                   <p>{{ formatDate(photo.updatedAt) }}</p>
                 </div>
               </div>
-            </div>
+            </UCard>
 
             <!-- Location Information -->
-            <div class="border rounded-lg p-4">
-              <h3 class="text-lg font-semibold mb-3">Location Information</h3>
-              <div class="space-y-4">
+            <UCard :ui="{ body: { padding: isLocationOpen ? 'p-4' : 'p-0' } }">
+              <template #header>
+                <div class="flex justify-between items-center">
+                  <h3 class="text-lg font-semibold">Location Information</h3>
+                  <UButton :icon="isLocationOpen ? 'i-heroicons-chevron-up' : 'i-heroicons-chevron-down'"
+                           color="gray"
+                           variant="ghost"
+                           @click="isLocationOpen = !isLocationOpen" />
+                </div>
+              </template>
+              <div v-if="isLocationOpen"
+                   class="space-y-4">
                 <div>
                   <h4 class="font-medium mb-2">Absolute Position</h4>
                   <div class="grid grid-cols-3 gap-4">
@@ -77,6 +182,20 @@
                     </div>
                   </div>
                 </div>
+
+                <div class="mb-4">
+                  <GeoMap :markers="[{
+                    position: [photo.position.coordinates[1], photo.position.coordinates[0]],
+                    icon: '&lt;div class=&quot;w-6 h-6 rounded-full bg-blue-500 flex items-center justify-center text-white text-xs&quot;&gt;📷&lt;/div&gt;',
+                    content: '&lt;div class=&quot;p-2&quot;&gt;&lt;p class=&quot;font-semibold&quot;&gt;Photo Location&lt;/p&gt;&lt;p class=&quot;text-sm text-gray-600&quot;&gt;Altitude: ' + photo.altitude.toFixed(2) + 'm&lt;/p&gt;&lt;/div&gt;'
+                  }]"
+                          :initial-position="{
+                            lat: photo.position.coordinates[1],
+                            lng: photo.position.coordinates[0],
+                            zoom: 15
+                          }" />
+                </div>
+
                 <div>
                   <h4 class="font-medium mb-2">Relative Position</h4>
                   <div class="grid grid-cols-3 gap-4">
@@ -95,12 +214,21 @@
                   </div>
                 </div>
               </div>
-            </div>
+            </UCard>
 
             <!-- Orientation -->
-            <div class="border rounded-lg p-4">
-              <h3 class="text-lg font-semibold mb-3">Orientation</h3>
-              <div class="space-y-4">
+            <UCard :ui="{ body: { padding: isOrientationOpen ? 'p-4' : 'p-0' } }">
+              <template #header>
+                <div class="flex justify-between items-center">
+                  <h3 class="text-lg font-semibold">Orientation</h3>
+                  <UButton :icon="isOrientationOpen ? 'i-heroicons-chevron-up' : 'i-heroicons-chevron-down'"
+                           color="gray"
+                           variant="ghost"
+                           @click="isOrientationOpen = !isOrientationOpen" />
+                </div>
+              </template>
+              <div v-if="isOrientationOpen"
+                   class="space-y-4">
                 <div>
                   <h4 class="font-medium mb-2">Quaternion</h4>
                   <div class="grid grid-cols-4 gap-4">
@@ -140,12 +268,13 @@
                   </div>
                 </div>
               </div>
-            </div>
+            </UCard>
 
             <!-- Cloud Anchor -->
             <div class="border rounded-lg p-4">
               <h3 class="text-lg font-semibold mb-3">Cloud Anchor</h3>
-              <div class="space-y-4">
+              <div class="space-y-4"
+                   v-if="photo.cloudAnchor">
                 <div class="grid grid-cols-2 gap-4">
                   <div>
                     <p class="text-sm text-gray-600">ID</p>
@@ -177,13 +306,25 @@
                   </div>
                 </div>
               </div>
+              <div v-else>
+                <p class="text-sm text-gray-600 font-bold">No cloud anchor binding to this photo</p>
+              </div>
             </div>
 
             <!-- Accuracy Information -->
-            <div v-if="parsedMetadata"
-                 class="border rounded-lg p-4">
-              <h3 class="text-lg font-semibold mb-3">Accuracy Information</h3>
-              <div class="grid grid-cols-3 gap-4">
+            <UCard v-if="parsedMetadata"
+                   :ui="{ body: { padding: isAccuracyOpen ? 'p-4' : 'p-0' } }">
+              <template #header>
+                <div class="flex justify-between items-center">
+                  <h3 class="text-lg font-semibold">Accuracy Information</h3>
+                  <UButton :icon="isAccuracyOpen ? 'i-heroicons-chevron-up' : 'i-heroicons-chevron-down'"
+                           color="gray"
+                           variant="ghost"
+                           @click="isAccuracyOpen = !isAccuracyOpen" />
+                </div>
+              </template>
+              <div v-if="isAccuracyOpen"
+                   class="grid grid-cols-3 gap-4">
                 <div>
                   <p class="text-sm text-gray-600">Horizontal Accuracy</p>
                   <p>{{ parsedMetadata.HorizontalAccuracy.toFixed(2) }}m</p>
@@ -197,75 +338,7 @@
                   <p>{{ parsedMetadata.OrientationYawAccuracy.toFixed(2) }}°</p>
                 </div>
               </div>
-            </div>
-
-            <!-- Copyright Information -->
-            <div class="border rounded-lg p-4">
-              <h3 class="text-lg font-semibold mb-3">Copyright Information</h3>
-              <div class="space-y-4">
-                <div v-if="copyrightInfo?.status === 'SUCCESS'">
-                  <div class="grid grid-cols-2 gap-4">
-                    <div>
-                      <p class="text-sm text-gray-600">Status</p>
-                      <UBadge :color="copyrightInfo.details.status === 'registered' ? 'green' : 'red'">
-                        {{ copyrightInfo.details.status }}
-                      </UBadge>
-                    </div>
-                    <div>
-                      <p class="text-sm text-gray-600">Transaction Hash</p>
-                      <p class="truncate">{{ copyrightInfo.details.transactionHash }}</p>
-                    </div>
-                    <div>
-                      <p class="text-sm text-gray-600">User ID</p>
-                      <p>{{ copyrightInfo.details.userId }}</p>
-                    </div>
-                    <div>
-                      <p class="text-sm text-gray-600">Image Hash</p>
-                      <p class="truncate">{{ formatBinaryHash(copyrightInfo.details.imageHash) }}</p>
-                    </div>
-                  </div>
-                  <div class="mt-4">
-                    <p class="text-sm text-gray-600">Blockchain Info</p>
-                    <div class="grid grid-cols-2 gap-4 mt-2">
-                      <div>
-                        <p class="text-sm text-gray-600">Topic ID</p>
-                        <p class="truncate">{{ copyrightInfo.details.blockchainInfo.topicId }}</p>
-                      </div>
-                      <div>
-                        <p class="text-sm text-gray-600">Sequence</p>
-                        <p>{{ copyrightInfo.details.blockchainInfo.sequenceNumber }}</p>
-                      </div>
-                      <div>
-                        <p class="text-sm text-gray-600">Message</p>
-                        <p>{{ copyrightInfo.details.blockchainInfo.message.slice(0, 5) }}...{{
-                          copyrightInfo.details.blockchainInfo.message.slice(-5) }}</p>
-                      </div>
-                      <div>
-                        <p class="text-sm text-gray-600">Timestamp</p>
-                        <p>{{ formatDate(copyrightInfo.details.blockchainInfo.timestamp) }}</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div v-else>
-                  <p class="text-gray-500">{{ copyrightInfo?.message || 'No copyright information available' }}</p>
-                </div>
-                <div class="flex space-x-4">
-                  <UButton v-if="!copyrightInfo?.details"
-                           type="primary"
-                           @click="registerCopyright"
-                           :loading="isRegistering">
-                    Register Copyright
-                  </UButton>
-                  <UButton v-if="copyrightInfo?.status === 'SUCCESS'"
-                           type="secondary"
-                           @click="createWatermark"
-                           :loading="isCreatingWatermark">
-                    Create Watermark
-                  </UButton>
-                </div>
-              </div>
-            </div>
+            </UCard>
           </div>
         </div>
       </UCard>
@@ -292,6 +365,12 @@ const copyrightInfo = ref<any>(null)
 const isRegistering = ref(false)
 const isCreatingWatermark = ref(false)
 const userStore = useUserStore()
+const isFileInfoOpen = ref(true)
+const isTimestampsOpen = ref(true)
+const isLocationOpen = ref(true)
+const isOrientationOpen = ref(true)
+const isAccuracyOpen = ref(true)
+const isCopyrightOpen = ref(true)
 
 const formatFileSize = (bytes) => {
   if (bytes === 0) return '0 Bytes'
@@ -394,13 +473,13 @@ const createWatermark = async () => {
 
     if (watermarkResponse && (watermarkResponse as any).watermarkLength > 0) {
       // 下载带水印的图片
-      const { data: watermarkFile } = await FileService.getFile({ 
+      const { data: watermarkFile } = await FileService.getFile({
         path: { key: (watermarkResponse as any).watermarkFile },
         responseType: 'blob'
       })
-      
+
       // 创建下载链接
-      const blob = new Blob([watermarkFile], { type: 'image/jpeg' })
+      const blob = new Blob([watermarkFile as any], { type: 'image/jpeg' })
       const url = window.URL.createObjectURL(blob)
       const a = document.createElement('a')
       a.href = url
