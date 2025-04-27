@@ -10,6 +10,7 @@
           ref="mapRef"
           :markers="mapObjects"
           @bounds-change="handleBoundsChange"
+          :center="[52.25, -7.11]"
         />
       </div>
     </UCard>
@@ -60,8 +61,8 @@
     <!-- Pagination -->
     <div class="mt-6 flex justify-center">
       <UPagination v-model="pagination.page"
-                   :page-count="pagination.totalPages"
-                   :total="pagination.total"
+                   :page-count="pagination.limit"
+                   :total="pagination.totalPages"
                    @update="fetchComments" />
     </div>
   </div>
@@ -98,7 +99,7 @@ const fetchComments = async (bounds = null) => {
         }
       })
     } else {
-      response = await GeoCommentService.findUserComments({
+      response = await GeoCommentService.findAllComments({
         query: {
           page: pagination.value.page,
           limit: pagination.value.limit
@@ -126,12 +127,13 @@ const handleBoundsChange = (bounds) => {
 }
 
 const viewComment = (comment) => {
+  console.log(comment)
   navigateTo(`/comment/${comment.id}`)
 }
 
 const deleteComment = async (id) => {
   try {
-    await GeoCommentService.delete({ path: { id } })
+    await GeoCommentService.deleteComment({ path: { id } })
     comments.value = comments.value.filter(comment => comment.id !== id)
   } catch (error) {
     console.error('Failed to delete comment:', error)
