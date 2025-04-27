@@ -193,7 +193,7 @@ const formatDate = (dateString) => {
 }
 
 const fetchCommentDetails = async (id) => {
-  const response = await GeoCommentService.findOne({ path: { id: id } }) as any
+  const response = await GeoCommentService.findOneComment({ path: { id: id } }) as any
   comment.value = response.data
   if (comment.value.metadata) {
     parsedMetadata.value = JSON.parse(comment.value.metadata)
