@@ -155,7 +155,16 @@
         </div>
         <div v-if="proofResult"
              class="mt-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
-          <h3 class="font-semibold mb-2 text-gray-700">Proof Result</h3>
+          <div class="flex justify-between items-center mb-2">
+            <h3 class="font-semibold text-gray-700">Proof Result</h3>
+            <button @click="downloadProofResult"
+                    class="text-blue-600 hover:text-blue-800 flex items-center">
+              <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+              </svg>
+              Download JSON
+            </button>
+          </div>
           <div class="space-y-2">
             <div class="flex items-center">
               <span class="text-gray-600 w-24">Owner:</span>
@@ -180,41 +189,80 @@
 
     <!-- Verify Artwork Ownership -->
     <div class="mb-8 p-6 border rounded-lg shadow-lg bg-white">
-      <h2 class="text-2xl font-semibold mb-4 text-gray-800">Verify Artwork Ownership</h2>
+      <h2 class="text-2xl font-semibold mb-4 text-gray-800">Artwork Verification</h2>
       <div class="space-y-4">
         <div class="flex flex-col gap-4">
-          <div class="flex items-center">
-            <input type="file"
-                   @change="handleVerifyArtworkFile"
-                   class="hidden"
-                   ref="verifyArtworkInput" />
-            <button @click="() => verifyArtworkInput?.click()"
-                    class="flex-1 bg-blue-100 text-blue-700 px-6 py-3 rounded-lg hover:bg-blue-200 transition-all duration-300 flex items-center justify-center">
-              <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-              </svg>
-              Select Artwork File
-            </button>
-            <span v-if="verifyArtworkFile"
-                  class="text-gray-600 flex-1 truncate">
-              {{ verifyArtworkFile.name }}
-            </span>
+          <!-- 验证模式选择 -->
+          <div class="flex items-center space-x-4">
+            <label class="inline-flex items-center">
+              <input type="radio" v-model="verifyMode" value="traditional" class="form-radio text-blue-600">
+              <span class="ml-2">Blockchain Mode</span>
+            </label>
+            <label class="inline-flex items-center">
+              <input type="radio" v-model="verifyMode" value="zk" class="form-radio text-blue-600">
+              <span class="ml-2">Zero-Knowledge Mode</span>
+            </label>
           </div>
-          <div v-if="verifyArtworkHash"
-               class="p-3 bg-gray-50 rounded-lg">
-            <label class="block text-sm font-medium text-gray-600 mb-1">File Hash</label>
-            <p class="font-mono text-sm break-all">{{ verifyArtworkHash }}</p>
+
+          <!-- Traditional Mode -->
+          <div v-if="verifyMode === 'traditional'" class="space-y-4">
+            <div class="flex items-center">
+              <input type="file"
+                     @change="handleVerifyArtworkFile"
+                     class="hidden"
+                     ref="verifyArtworkInput" />
+              <button @click="() => verifyArtworkInput?.click()"
+                      class="flex-1 bg-blue-100 text-blue-700 px-6 py-3 rounded-lg hover:bg-blue-200 transition-all duration-300 flex items-center justify-center">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                </svg>
+                Select Artwork File
+              </button>
+              <span v-if="verifyArtworkFile"
+                    class="text-gray-600 flex-1 truncate">
+                {{ verifyArtworkFile.name }}
+              </span>
+            </div>
+            <div v-if="verifyArtworkHash"
+                 class="p-3 bg-gray-50 rounded-lg">
+              <label class="block text-sm font-medium text-gray-600 mb-1">File Hash</label>
+              <p class="font-mono text-sm break-all">{{ verifyArtworkHash }}</p>
+            </div>
           </div>
+
+          <!-- Zero-Knowledge Mode -->
+          <div v-if="verifyMode === 'zk'" class="space-y-4">
+            <div class="flex items-center">
+              <input type="file"
+                     @change="handleCommitmentFile"
+                     class="hidden"
+                     ref="commitmentInput" />
+              <button @click="() => commitmentInput?.click()"
+                      class="flex-1 bg-blue-100 text-blue-700 px-6 py-3 rounded-lg hover:bg-blue-200 transition-all duration-300 flex items-center justify-center">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                </svg>
+                Select Commitment
+              </button>
+              <span v-if="commitmentFile"
+                    class="text-gray-600 flex-1 truncate">
+                {{ commitmentFile.name }}
+              </span>
+            </div>
+          </div>
+
+          <!-- Owner Address (Optional) -->
           <div class="p-3 bg-gray-50 rounded-lg">
-            <label class="block text-sm font-medium text-gray-600 mb-1">Owner Address</label>
+            <label class="block text-sm font-medium text-gray-600 mb-1">Owner Address (Optional)</label>
             <input v-model="ownerAddress"
                    type="text"
                    class="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                   placeholder="Enter owner address" />
+                   placeholder="Enter owner address to verify ownership" />
           </div>
+
           <button @click="verifyOwnership"
                   class="w-full bg-gradient-to-r from-green-500 to-blue-500 text-white px-6 py-3 rounded-lg hover:from-green-600 hover:to-blue-600 transition-all duration-300 flex items-center justify-center"
-                  :disabled="isVerifying">
+                  :disabled="isVerifying || (!verifyArtworkHash && !commitment)">
             <span v-if="isVerifying" class="mr-2">
               <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -237,17 +285,26 @@
               <span :class="verificationResult.isValid ? 'text-green-600' : 'text-red-600'">
                 {{ verificationResult.isValid ? 'Valid' : 'Invalid' }}
               </span>
+              <span class="text-gray-500 text-sm ml-2">
+                {{ verificationResult.isValid ? 'The proof is mathematically valid' : 'The proof is invalid or corrupted' }}
+              </span>
             </div>
             <div class="flex items-center">
               <span class="text-gray-600 w-24">Ownership:</span>
-              <span :class="verificationResult.isOwner ? 'text-green-600' : 'text-red-600'">
-                {{ verificationResult.isOwner ? 'Owner' : 'Not Owner' }}
+              <span :class="getOwnershipClass(verificationResult.isOwner)">
+                {{ getOwnershipText(verificationResult.isOwner) }}
+              </span>
+              <span class="text-gray-500 text-sm ml-2">
+                {{ getOwnershipExplanation(verificationResult.isOwner) }}
               </span>
             </div>
             <div class="flex items-center">
               <span class="text-gray-600 w-24">On Chain:</span>
               <span :class="verificationResult.hasOnChainRecord ? 'text-green-600' : 'text-red-600'">
                 {{ verificationResult.hasOnChainRecord ? 'Recorded' : 'Not Recorded' }}
+              </span>
+              <span class="text-gray-500 text-sm ml-2">
+                {{ verificationResult.hasOnChainRecord ? 'The proof has been recorded on the blockchain' : 'The proof has not been recorded on the blockchain' }}
               </span>
             </div>
           </div>
@@ -280,13 +337,17 @@ const proofResult = ref<any>(null)
 const artworkInput = ref<HTMLInputElement | null>(null)
 
 // 验证所有权相关状态
+const verifyMode = ref<'traditional' | 'zk'>('traditional')
 const verifyArtworkFile = ref<File | null>(null)
 const verifyArtworkHash = ref('')
+const commitmentFile = ref<File | null>(null)
+const commitment = ref<any>(null)
 const ownerAddress = ref('')
 const isVerifying = ref(false)
 const verifyError = ref('')
 const verificationResult = ref<any>(null)
 const verifyArtworkInput = ref<HTMLInputElement | null>(null)
+const commitmentInput = ref<HTMLInputElement | null>(null)
 
 // 生成密钥对
 const generateKeyPair = async () => {
@@ -378,6 +439,23 @@ const handleVerifyArtworkFile = async (event: Event) => {
   }
 }
 
+// 处理承诺文件上传
+const handleCommitmentFile = async (event: Event) => {
+  const input = event.target as HTMLInputElement
+  if (input.files && input.files[0]) {
+    commitmentFile.value = input.files[0]
+    const reader = new FileReader()
+    reader.onload = (e) => {
+      try {
+        commitment.value = JSON.parse(e.target?.result as string)
+      } catch (error) {
+        verifyError.value = 'Invalid commitment file'
+      }
+    }
+    reader.readAsText(commitmentFile.value)
+  }
+}
+
 // 创建艺术品证明
 const createProof = async () => {
   try {
@@ -407,22 +485,53 @@ const createProof = async () => {
   }
 }
 
+// 获取所有权状态文本
+const getOwnershipText = (isOwner: boolean | string) => {
+  if (typeof isOwner === 'string') {
+    return 'Not Verified'
+  }
+  return isOwner ? 'Owner' : 'Not Owner'
+}
+
+// 获取所有权状态样式类
+const getOwnershipClass = (isOwner: boolean | string) => {
+  if (typeof isOwner === 'string') {
+    return 'text-gray-600'
+  }
+  return isOwner ? 'text-green-600' : 'text-red-600'
+}
+
+// 获取所有权解释文本
+const getOwnershipExplanation = (isOwner: boolean | string) => {
+  if (typeof isOwner === 'string') {
+    return 'Ownership verification was not requested'
+  }
+  return isOwner ? 'The provided address is the owner of this artwork' : 'The provided address is not the owner of this artwork'
+}
+
 // 验证艺术品所有权
 const verifyOwnership = async () => {
   try {
     isVerifying.value = true
     verifyError.value = ''
     
+    const requestData: any = {
+      ownerAddress: ownerAddress.value || undefined
+    }
+
+    if (verifyMode.value === 'traditional') {
+      requestData.artworkHash = verifyArtworkHash.value
+    } else {
+      requestData.onChainRecord = commitment.value
+    }
+    
     const { data } = await ZkService.verifyArtworkOwnership({
-      body: {
-        artworkHash: verifyArtworkHash.value,
-        ownerAddress: ownerAddress.value
-      }
+      body: requestData
     })
     
     verificationResult.value = data
   } catch (error) {
-    verifyError.value = error instanceof Error ? error.message : '验证失败'
+    verifyError.value = error instanceof Error ? error.message : 'Verification failed'
   } finally {
     isVerifying.value = false
   }
@@ -459,6 +568,21 @@ const downloadKeyPair = () => {
   const a = document.createElement('a')
   a.href = url
   a.download = `zk-key-pair-${new Date().toISOString().split('T')[0]}.json`
+  document.body.appendChild(a)
+  a.click()
+  document.body.removeChild(a)
+  URL.revokeObjectURL(url)
+}
+
+// 下载证明结果
+const downloadProofResult = () => {
+  if (!proofResult.value) return
+  
+  const blob = new Blob([JSON.stringify(proofResult.value, null, 2)], { type: 'application/json' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = `proof-result-${new Date().toISOString().split('T')[0]}.json`
   document.body.appendChild(a)
   a.click()
   document.body.removeChild(a)
