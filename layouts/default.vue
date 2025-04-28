@@ -109,7 +109,7 @@ const navigationLinks = [
   },
   {
     label: 'Scenes',
-    icon: 'i-heroicons-camera',
+    icon: 'i-heroicons-photo',
     to: '/scene'
   },
   {

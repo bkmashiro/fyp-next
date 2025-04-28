@@ -414,17 +414,14 @@ export const $CreateCloudAnchorDto = {
         cloudAnchorId: {
             type: 'string'
         },
-        position: {
+        anchorPosition: {
             type: 'array',
             items: {
                 type: 'number'
             }
-        },
-        altitude: {
-            type: 'number'
         }
     },
-    required: ['cloudAnchorId', 'position', 'altitude']
+    required: ['cloudAnchorId', 'anchorPosition']
 } as const;
 
 export const $UpdateGeoObjectDto = {
@@ -706,15 +703,71 @@ export const $CreateArtworkProofDto = {
     required: ['artworkHash', 'signature']
 } as const;
 
-export const $VerifyArtworkOwnershipDto = {
+export const $ZKProofDto = {
     type: 'object',
     properties: {
-        artworkHash: {
+        pi_a: {
+            type: 'array',
+            items: {
+                type: 'string'
+            }
+        },
+        pi_b: {
+            type: 'array',
+            items: {
+                required: true,
+                type: 'array',
+                items: {
+                    type: 'string'
+                }
+            }
+        },
+        pi_c: {
+            type: 'array',
+            items: {
+                type: 'string'
+            }
+        },
+        protocol: {
             type: 'string'
+        },
+        curve: {
+            type: 'string'
+        }
+    },
+    required: ['pi_a', 'pi_b', 'pi_c', 'protocol', 'curve']
+} as const;
+
+export const $OnChainRecordDto = {
+    type: 'object',
+    properties: {
+        proof: {
+            '$ref': '#/components/schemas/ZKProofDto'
+        },
+        publicSignals: {
+            type: 'array',
+            items: {
+                type: 'string'
+            }
         },
         ownerAddress: {
             type: 'string'
         }
     },
-    required: ['artworkHash', 'ownerAddress']
+    required: ['proof', 'publicSignals', 'ownerAddress']
+} as const;
+
+export const $VerifyArtworkOwnershipDto = {
+    type: 'object',
+    properties: {
+        ownerAddress: {
+            type: 'string'
+        },
+        artworkHash: {
+            type: 'string'
+        },
+        onChainRecord: {
+            '$ref': '#/components/schemas/OnChainRecordDto'
+        }
+    }
 } as const;

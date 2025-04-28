@@ -300,11 +300,11 @@
             </div>
             <div class="flex items-center">
               <span class="text-gray-600 w-24">On Chain:</span>
-              <span :class="verificationResult.hasOnChainRecord ? 'text-green-600' : 'text-red-600'">
-                {{ verificationResult.hasOnChainRecord ? 'Recorded' : 'Not Recorded' }}
+              <span :class="getOnChainClass(verificationResult.hasOnChainRecord)">
+                {{ getOnChainText(verificationResult.hasOnChainRecord) }}
               </span>
               <span class="text-gray-500 text-sm ml-2">
-                {{ verificationResult.hasOnChainRecord ? 'The proof has been recorded on the blockchain' : 'The proof has not been recorded on the blockchain' }}
+                {{ getOnChainExplanation(verificationResult.hasOnChainRecord) }}
               </span>
             </div>
           </div>
@@ -507,6 +507,30 @@ const getOwnershipExplanation = (isOwner: boolean | string) => {
     return 'Ownership verification was not requested'
   }
   return isOwner ? 'The provided address is the owner of this artwork' : 'The provided address is not the owner of this artwork'
+}
+
+// 获取链上状态文本
+const getOnChainText = (hasOnChainRecord: boolean | string) => {
+  if (hasOnChainRecord === 'unknown') {
+    return 'Unknown'
+  }
+  return hasOnChainRecord ? 'Recorded' : 'Not Recorded'
+}
+
+// 获取链上状态样式类
+const getOnChainClass = (hasOnChainRecord: boolean | string) => {
+  if (hasOnChainRecord === 'unknown') {
+    return 'text-gray-600'
+  }
+  return hasOnChainRecord ? 'text-green-600' : 'text-red-600'
+}
+
+// 获取链上状态解释文本
+const getOnChainExplanation = (hasOnChainRecord: boolean | string) => {
+  if (hasOnChainRecord === 'unknown') {
+    return 'Chain status is not available in zero-knowledge mode'
+  }
+  return hasOnChainRecord ? 'The proof has been recorded on the blockchain' : 'The proof has not been recorded on the blockchain'
 }
 
 // 验证艺术品所有权

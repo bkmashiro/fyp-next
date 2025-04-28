@@ -160,8 +160,7 @@ export type GeoImage = {
 
 export type CreateCloudAnchorDto = {
     cloudAnchorId: string;
-    position: Array<(number)>;
-    altitude: number;
+    anchorPosition: Array<(number)>;
 };
 
 export type UpdateGeoObjectDto = {
@@ -272,9 +271,24 @@ export type CreateArtworkProofDto = {
     signature: string;
 };
 
-export type VerifyArtworkOwnershipDto = {
-    artworkHash: string;
+export type ZKProofDto = {
+    pi_a: Array<(string)>;
+    pi_b: Array<Array<(string)>>;
+    pi_c: Array<(string)>;
+    protocol: string;
+    curve: string;
+};
+
+export type OnChainRecordDto = {
+    proof: ZKProofDto;
+    publicSignals: Array<(string)>;
     ownerAddress: string;
+};
+
+export type VerifyArtworkOwnershipDto = {
+    ownerAddress?: string;
+    artworkHash?: string;
+    onChainRecord?: OnChainRecordDto;
 };
 
 export type GetHelloResponse = (string);
@@ -681,6 +695,25 @@ export type UpdateAnchorExpireTimeResponse = ({
 
 export type UpdateAnchorExpireTimeError = unknown;
 
+export type FindAllData = {
+    query?: {
+        limit?: number;
+        limit?: number;
+        page?: number;
+        page?: number;
+        type?: string;
+        type?: string;
+    };
+};
+
+export type UpdateGeoObjectData = {
+    body: UpdateGeoObjectDto;
+};
+
+export type UpdateGeoObjectResponse = (GeoObject);
+
+export type UpdateGeoObjectError = unknown;
+
 export type FindObjectsInBoundsData = {
     query: {
         limit?: number;
@@ -735,14 +768,6 @@ export type FindOneGeoObjectData = {
 export type FindOneGeoObjectResponse = (GeoObject);
 
 export type FindOneGeoObjectError = unknown;
-
-export type UpdateGeoObjectData = {
-    body: UpdateGeoObjectDto;
-};
-
-export type UpdateGeoObjectResponse = (GeoObject);
-
-export type UpdateGeoObjectError = unknown;
 
 export type CreateCommentData = {
     body: CreateGeoCommentDto;
