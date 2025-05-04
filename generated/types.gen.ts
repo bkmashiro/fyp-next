@@ -269,6 +269,8 @@ export type ExtractWatermarkDto = {
 export type CreateArtworkProofDto = {
     artworkHash: string;
     signature: string;
+    nonce?: string;
+    ttl?: number;
 };
 
 export type ZKProofDto = {

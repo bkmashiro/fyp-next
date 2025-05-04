@@ -698,6 +698,13 @@ export const $CreateArtworkProofDto = {
         },
         signature: {
             type: 'string'
+        },
+        nonce: {
+            type: 'string'
+        },
+        ttl: {
+            type: 'number',
+            minimum: 1
         }
     },
     required: ['artworkHash', 'signature']
